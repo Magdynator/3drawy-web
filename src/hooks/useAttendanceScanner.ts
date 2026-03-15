@@ -39,12 +39,25 @@ export function useAttendanceScanner() {
 
       if (existing) throw new Error(`${user.name} already recorded this week`);
 
+      // Try with scanned_by first; if FK constraint fails, retry without it
       const { error } = await supabase.from("attendance").insert({
         user_id: user.id,
         scanned_by: currentUser?.id || null,
         week_start: weekStart,
       });
-      if (error) throw error;
+      if (error) {
+        if (error.message?.includes("foreign key constraint")) {
+          console.warn("FK constraint on scanned_by failed, retrying without it:", error.message);
+          const { error: retryErr } = await supabase.from("attendance").insert({
+            user_id: user.id,
+            scanned_by: null,
+            week_start: weekStart,
+          });
+          if (retryErr) throw retryErr;
+        } else {
+          throw error;
+        }
+      }
 
       const { error: pointsErr } = await supabase.rpc("increment_points", {
         _user_id: user.id,
@@ -84,9 +97,21 @@ export function useAttendanceScanner() {
       toast({ title: "Attendance recorded!", description: `${name} +2 points` });
       setTimeout(() => setScanSuccess(false), 3000);
     },
-    onError: (err: Error) => {
+    onError: (err: any) => {
+      console.error("Attendance scan error:", err);
+      console.error("Payload details:", {
+        adminId: currentUser?.id,
+        adminName: currentUser?.name,
+        errorHint: err?.hint,
+        errorDetails: err?.details
+      });
+
       if (navigator.vibrate) navigator.vibrate(300);
-      toast({ title: "Scan error", description: err.message, variant: "destructive" });
+      toast({
+        title: "Scan error",
+        description: err.message || "Failed to record attendance. Check console for details.",
+        variant: "destructive"
+      });
     },
     onSettled: () => {
       processingRef.current = false;
