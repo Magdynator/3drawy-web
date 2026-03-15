@@ -1,0 +1,246 @@
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap");
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 220 20% 97%;
+    --foreground: 222 47% 11%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 222 47% 11%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 222 47% 11%;
+
+    --primary: 250 85% 60%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 220 14% 96%;
+    --secondary-foreground: 222 47% 11%;
+
+    --muted: 220 14% 96%;
+    --muted-foreground: 220 8% 46%;
+
+    --accent: 250 85% 97%;
+    --accent-foreground: 250 85% 40%;
+
+    --destructive: 0 72% 50%;
+    --destructive-foreground: 0 85% 97%;
+
+    --border: 220 13% 91%;
+    --input: 220 13% 91%;
+    --ring: 250 85% 60%;
+
+    --radius: 0.75rem;
+
+    --sidebar-background: 0 0% 100%;
+    --sidebar-foreground: 222 47% 11%;
+    --sidebar-primary: 250 85% 60%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 250 85% 97%;
+    --sidebar-accent-foreground: 250 85% 40%;
+    --sidebar-border: 220 13% 91%;
+    --sidebar-ring: 250 85% 60%;
+
+    --success: 152 60% 40%;
+    --success-foreground: 0 0% 100%;
+    --warning: 38 92% 50%;
+    --warning-foreground: 0 0% 100%;
+    --info: 210 80% 52%;
+    --info-foreground: 0 0% 100%;
+
+    --gradient-start: 250 85% 60%;
+    --gradient-mid: 280 75% 55%;
+    --gradient-end: 320 72% 55%;
+
+    --dashboard-card: 0 0% 100%;
+    --dashboard-card-hover: 250 85% 97%;
+    --dashboard-icon-bg: 250 85% 95%;
+    --dashboard-icon-fg: 250 85% 50%;
+    --chart-1: 250 85% 60%;
+    --chart-2: 280 75% 55%;
+    --chart-3: 320 72% 55%;
+    --chart-4: 200 80% 50%;
+    --chart-5: 152 60% 40%;
+    --sidebar: 0 0% 100%;
+    --font-sans: 'Inter', ui-sans-serif, system-ui, sans-serif;
+    --font-mono: 'JetBrains Mono', ui-monospace, monospace;
+    --shadow-2xs: 0 1px 3px 0px hsl(0 0% 0% / 0.04);
+    --shadow-xs: 0 1px 3px 0px hsl(0 0% 0% / 0.05);
+    --shadow-sm: 0 1px 2px 0px hsl(0 0% 0% / 0.06), 0 1px 3px 0 hsl(0 0% 0% / 0.1);
+    --shadow: 0 1px 3px 0 hsl(0 0% 0% / 0.1), 0 1px 2px -1px hsl(0 0% 0% / 0.1);
+    --shadow-md: 0 4px 6px -1px hsl(0 0% 0% / 0.1), 0 2px 4px -2px hsl(0 0% 0% / 0.1);
+    --shadow-lg: 0 10px 15px -3px hsl(0 0% 0% / 0.1), 0 4px 6px -4px hsl(0 0% 0% / 0.1);
+    --shadow-xl: 0 20px 25px -5px hsl(0 0% 0% / 0.1), 0 8px 10px -6px hsl(0 0% 0% / 0.1);
+    --shadow-2xl: 0 25px 50px -12px hsl(0 0% 0% / 0.25);
+    --tracking-normal: 0em;
+    --spacing: 0.25rem;
+  }
+
+  .dark {
+    --background: 224 71% 4%;
+    --foreground: 210 20% 98%;
+
+    --card: 224 71% 7%;
+    --card-foreground: 210 20% 98%;
+
+    --popover: 224 71% 7%;
+    --popover-foreground: 210 20% 98%;
+
+    --primary: 250 85% 65%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 215 28% 16%;
+    --secondary-foreground: 210 20% 98%;
+
+    --muted: 215 28% 16%;
+    --muted-foreground: 217 10% 60%;
+
+    --accent: 250 30% 15%;
+    --accent-foreground: 250 85% 75%;
+
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 85% 97%;
+
+    --border: 215 28% 16%;
+    --input: 215 28% 16%;
+    --ring: 250 85% 65%;
+
+    --sidebar-background: 224 71% 5%;
+    --sidebar-foreground: 210 20% 98%;
+    --sidebar-primary: 250 85% 65%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 250 30% 15%;
+    --sidebar-accent-foreground: 250 85% 75%;
+    --sidebar-border: 215 28% 16%;
+    --sidebar-ring: 250 85% 65%;
+
+    --success: 152 55% 45%;
+    --success-foreground: 0 0% 100%;
+    --warning: 38 90% 55%;
+    --warning-foreground: 0 0% 100%;
+    --info: 210 75% 55%;
+    --info-foreground: 0 0% 100%;
+
+    --gradient-start: 250 85% 65%;
+    --gradient-mid: 280 75% 60%;
+    --gradient-end: 320 72% 60%;
+
+    --dashboard-card: 224 71% 8%;
+    --dashboard-card-hover: 250 30% 12%;
+    --dashboard-icon-bg: 250 40% 16%;
+    --dashboard-icon-fg: 250 85% 75%;
+    --chart-1: 250 85% 70%;
+    --chart-2: 280 75% 65%;
+    --chart-3: 320 72% 60%;
+    --chart-4: 200 80% 55%;
+    --chart-5: 152 55% 50%;
+    --sidebar: 224 71% 7%;
+    --shadow-2xs: 0 1px 3px 0px hsl(0 0% 0% / 0.1);
+    --shadow-xs: 0 1px 3px 0px hsl(0 0% 0% / 0.15);
+    --shadow-sm: 0 1px 2px 0px hsl(0 0% 0% / 0.2), 0 1px 3px 0 hsl(0 0% 0% / 0.15);
+    --shadow: 0 1px 3px 0 hsl(0 0% 0% / 0.2), 0 1px 2px -1px hsl(0 0% 0% / 0.15);
+    --shadow-md: 0 4px 6px -1px hsl(0 0% 0% / 0.2), 0 2px 4px -2px hsl(0 0% 0% / 0.15);
+    --shadow-lg: 0 10px 15px -3px hsl(0 0% 0% / 0.25), 0 4px 6px -4px hsl(0 0% 0% / 0.15);
+    --shadow-xl: 0 20px 25px -5px hsl(0 0% 0% / 0.3), 0 8px 10px -6px hsl(0 0% 0% / 0.15);
+    --shadow-2xl: 0 25px 50px -12px hsl(0 0% 0% / 0.5);
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground antialiased;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+  }
+}
+
+@layer utilities {
+  .gradient-primary {
+    background: linear-gradient(135deg, hsl(var(--gradient-start)), hsl(var(--gradient-mid)), hsl(var(--gradient-end)));
+  }
+
+  .gradient-text {
+    background: linear-gradient(135deg, hsl(var(--gradient-start)), hsl(var(--gradient-mid)), hsl(var(--gradient-end)));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .glass-card {
+    @apply bg-card/80 backdrop-blur-xl rounded-2xl border border-border/50 shadow-lg;
+  }
+
+  .glass-card-hover {
+    @apply glass-card transition-all duration-300 hover:shadow-xl hover:border-primary/30 hover:-translate-y-1;
+  }
+
+  .dashboard-card {
+    @apply bg-card/80 backdrop-blur-xl rounded-2xl border border-border/50 p-6 cursor-pointer 
+           transition-all duration-300 shadow-md hover:shadow-xl hover:-translate-y-1;
+  }
+
+  .dashboard-card:hover {
+    background: hsl(var(--dashboard-card-hover));
+    border-color: hsl(var(--primary) / 0.3);
+  }
+
+  .icon-container {
+    background: linear-gradient(135deg, hsl(var(--gradient-start) / 0.15), hsl(var(--gradient-end) / 0.15));
+    color: hsl(var(--dashboard-icon-fg));
+    @apply w-12 h-12 rounded-xl flex items-center justify-center;
+  }
+
+  .page-header {
+    @apply text-2xl font-bold tracking-tight text-foreground;
+  }
+
+  .stat-value {
+    @apply text-3xl font-extrabold tracking-tight;
+    background: linear-gradient(135deg, hsl(var(--gradient-start)), hsl(var(--gradient-end)));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .shimmer {
+    position: relative;
+    overflow: hidden;
+  }
+
+  .shimmer::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, hsl(0 0% 100% / 0.08), transparent);
+    animation: shimmer 2.5s infinite;
+  }
+
+  .glow-border {
+    position: relative;
+  }
+
+  .glow-border::before {
+    content: '';
+    position: absolute;
+    inset: -1px;
+    border-radius: inherit;
+    background: linear-gradient(135deg, hsl(var(--gradient-start) / 0.5), hsl(var(--gradient-mid) / 0.5), hsl(var(--gradient-end) / 0.5));
+    z-index: -1;
+    opacity: 0;
+    transition: opacity 0.3s;
+  }
+
+  .glow-border:hover::before {
+    opacity: 1;
+  }
+}
