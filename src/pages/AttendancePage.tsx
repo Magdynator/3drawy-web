@@ -17,7 +17,7 @@ export default function AttendancePage() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("attendance")
-        .select("*, user:users!attendance_user_id_fkey(name), scanner:users!attendance_scanned_by_fkey(name)")
+        .select("*, user:users!attendance_user_id_fkey(name), scanner:admins!attendance_scanned_by_fkey(name)")
         .eq("week_start", weekStartStr)
         .order("scanned_at", { ascending: false });
       if (error) throw error;
@@ -73,8 +73,8 @@ export default function AttendancePage() {
                 </TableRow>
               ) : (
                 records?.map((record, i) => (
-                  <TableRow 
-                    key={record.id} 
+                  <TableRow
+                    key={record.id}
                     className="border-border/50 animate-fade-in hover:bg-accent/30 transition-colors"
                     style={{ animationDelay: `${i * 50}ms` }}
                   >
