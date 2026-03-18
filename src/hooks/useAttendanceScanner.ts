@@ -4,6 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
 import { format, startOfWeek } from "date-fns";
+import { logActivity } from "@/utils/activityLogging";
 
 export function useAttendanceScanner() {
   const { currentUser } = useAuth();
@@ -83,6 +84,8 @@ export function useAttendanceScanner() {
           bingo_number: bingo,
         });
       }
+
+      await logActivity(currentUser?.id, "RECORD_ATTENDANCE", `Recorded attendance for ${user.name}`, user.id);
 
       return user.name;
     },

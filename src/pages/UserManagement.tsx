@@ -13,6 +13,7 @@ import { useToast } from "@/hooks/use-toast";
 import { Plus, Search, Users } from "lucide-react";
 import UserCard from "@/components/UserCard";
 import { Database } from "@/integrations/supabase/types";
+import { logActivity } from "@/utils/activityLogging";
 
 type AppRole = Database["public"]["Enums"]["app_role"];
 
@@ -65,6 +66,13 @@ export default function UserManagement() {
           notes: form.notes || null,
         }).eq("id", editingUser.id);
         if (error) throw error;
+
+        await logActivity(
+          currentUser?.id,
+          "UPDATE_USER",
+          `Updated user: ${form.name}`,
+          editingUser.id
+        );
       } else {
         const barcode = `USR-${Date.now()}-${Math.random().toString(36).substring(2, 8).toUpperCase()}`;
         const { error } = await supabase.from("users").insert({
@@ -78,6 +86,12 @@ export default function UserManagement() {
           barcode,
         });
         if (error) throw error;
+
+        await logActivity(
+          currentUser?.id,
+          "CREATE_USER",
+          `Created new user: ${form.name}`
+        );
       }
     },
     onSuccess: () => {
@@ -97,6 +111,13 @@ export default function UserManagement() {
     mutationFn: async (id: string) => {
       const { error } = await supabase.from("users").delete().eq("id", id);
       if (error) throw error;
+
+      await logActivity(
+        currentUser?.id,
+        "DELETE_USER",
+        `Deleted user ID: ${id}`,
+        id
+      );
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["users"] });

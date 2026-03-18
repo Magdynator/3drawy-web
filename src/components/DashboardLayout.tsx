@@ -30,17 +30,7 @@ export default function DashboardLayout({ children, title }: { children: React.R
             >
               <img src="/logo.jpg" alt="Logo" className="w-full h-full object-cover" />
             </Button>
-            {isSuperAdmin && (
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={() => navigate("/admins")}
-                className="rounded-xl hover:bg-accent hover:text-primary transition-colors"
-                title="Admin Management"
-              >
-                <Shield className="h-5 w-5" />
-              </Button>
-            )}
+
             <div className="flex items-center gap-2 ml-1">
               <h1 className="text-xl font-bold text-foreground tracking-tight">{title}</h1>
             </div>

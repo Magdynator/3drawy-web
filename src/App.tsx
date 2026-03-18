@@ -18,6 +18,7 @@ import NotFound from "./pages/NotFound";
 import AdminManagement from "./pages/AdminManagement";
 import ProtectedRoute from "./components/ProtectedRoute";
 import ActivityLogsPage from "./pages/ActivityLogsPage";
+import AdminUserDetailPage from "./pages/AdminUserDetailPage";
 
 const queryClient = new QueryClient();
 
@@ -35,6 +36,7 @@ function AnimatedRoutes() {
         <Route path="/atm" element={<ProtectedRoute><AtmPage /></ProtectedRoute>} />
         <Route path="/bingo" element={<ProtectedRoute><BingoDrawPage /></ProtectedRoute>} />
         <Route path="/admin/logs" element={<ProtectedRoute><ActivityLogsPage /></ProtectedRoute>} />
+        <Route path="/admin/user/:userId" element={<ProtectedRoute><AdminUserDetailPage /></ProtectedRoute>} />
         <Route path="/user/:userId" element={<UserProfilePage />} />
         <Route path="*" element={<NotFound />} />
       </Routes>

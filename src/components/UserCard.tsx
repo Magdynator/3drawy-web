@@ -1,6 +1,6 @@
 import { Database } from "@/integrations/supabase/types";
 import { useNavigate } from "react-router-dom";
-import { User, Phone, MapPin, Star, ChevronRight, Pencil, Trash2 } from "lucide-react";
+import { User, Phone, MapPin, Star, ChevronRight, Pencil, Trash2, Eye } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 type AppUser = Database["public"]["Tables"]["users"]["Row"];
@@ -42,8 +42,23 @@ export default function UserCard({ user, onEdit, onDelete }: UserCardProps) {
                     e.stopPropagation();
                     onEdit();
                   }}
+                  title="Edit user"
                 >
                   <Pencil className="h-4 w-4" />
+                </Button>
+              )}
+              {onEdit && (
+                <Button
+                  size="icon"
+                  variant="ghost"
+                  className="h-8 w-8 rounded-lg hover:bg-info/10 hover:text-info"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    navigate(`/admin/user/${user.id}`);
+                  }}
+                  title="View full admin details"
+                >
+                  <Eye className="h-4 w-4" />
                 </Button>
               )}
               {onDelete && (

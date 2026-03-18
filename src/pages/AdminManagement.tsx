@@ -10,6 +10,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
 import { Plus, Shield, ShieldAlert, Mail, User, Pencil, Trash2 } from "lucide-react";
+import { logActivity } from "@/utils/activityLogging";
 import {
     AlertDialog,
     AlertDialogAction,
@@ -55,7 +56,7 @@ export default function AdminManagement() {
 
             if (editingAdmin) {
                 // @ts-ignore
-                const { error } = await supabase.rpc("update_admin_user", {
+                const { error } = await supabase.rpc("update_dashboard_admin", {
                     target_auth_id: editingAdmin.auth_id,
                     new_email: form.email,
                     new_password: form.password || null,
@@ -63,6 +64,13 @@ export default function AdminManagement() {
                     new_role: form.role,
                 });
                 if (error) throw error;
+
+                await logActivity(
+                    currentUser?.id,
+                    "UPDATE_ADMIN",
+                    `Updated admin role/details for: ${form.name}`,
+                    editingAdmin.id
+                );
             } else {
                 // @ts-ignore
                 const { error } = await supabase.rpc("create_new_admin", {
@@ -72,6 +80,12 @@ export default function AdminManagement() {
                     new_role: form.role,
                 });
                 if (error) throw error;
+
+                await logActivity(
+                    currentUser?.id,
+                    "CREATE_ADMIN",
+                    `Created new admin: ${form.name}`
+                );
             }
         },
         onSuccess: () => {
@@ -93,6 +107,12 @@ export default function AdminManagement() {
                 target_auth_id: authId
             });
             if (error) throw error;
+
+            await logActivity(
+                currentUser?.id,
+                "DELETE_ADMIN",
+                `Deleted admin account.`
+            );
         },
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ["admins"] });

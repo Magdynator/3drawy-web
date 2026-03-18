@@ -8,8 +8,11 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import { Search, Plus, Minus, Lock, User, Coins } from "lucide-react";
+import { logActivity } from "@/utils/activityLogging";
+import { useAuth } from "@/contexts/AuthContext";
 
 export default function AtmPage() {
+  const { currentUser } = useAuth();
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const [search, setSearch] = useState("");
@@ -48,6 +51,12 @@ export default function AtmPage() {
         .update({ points: newPoints })
         .eq("id", selectedUser.id);
       if (error) throw error;
+
+      const action = delta > 0 ? "ATM_DEPOSIT" : "ATM_WITHDRAWAL";
+      const details = `${delta > 0 ? 'Added' : 'Withdrew'} ${Math.abs(delta)} points from ${selectedUser.name}`;
+
+      await logActivity(currentUser?.id, action, details, selectedUser.id);
+
       return newPoints;
     },
     onSuccess: (newPoints) => {
