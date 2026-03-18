@@ -14,6 +14,7 @@ import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import AttendanceLeaderboard from "@/components/AttendanceLeaderboard";
 import DirectPointsDialog from "@/components/DirectPointsDialog";
+import DatabaseBackupButtons from "@/components/DatabaseBackupButtons";
 import {
   Dialog,
   DialogContent,
@@ -296,6 +297,7 @@ export default function Dashboard() {
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <DirectPointsDialog />
+                <DatabaseBackupButtons />
                 <Button
                   variant="outline"
                   onClick={() => navigate("/admin/logs")}

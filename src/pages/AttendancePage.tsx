@@ -17,13 +17,29 @@ export default function AttendancePage() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("attendance")
-        .select("*, user:users!attendance_user_id_fkey(name), scanner:admins!attendance_scanned_by_fkey(name)")
+        .select("*, user:users!attendance_user_id_fkey(name)")
         .eq("week_start", weekStartStr)
         .order("scanned_at", { ascending: false });
       if (error) throw error;
       return data;
     },
   });
+
+  const { data: admins } = useQuery({
+    queryKey: ["admins"],
+    queryFn: async () => {
+      // @ts-ignore
+      const { data, error } = await supabase.from("admins").select("id, name");
+      if (error) throw error;
+      return data;
+    },
+  });
+
+  const getAdminName = (id: string | null) => {
+    if (!id) return "—";
+    const adminList = admins as any[] || [];
+    return adminList.find(a => a.id === id)?.name || id;
+  };
 
   return (
     <DashboardLayout title="Attendance">
@@ -80,7 +96,7 @@ export default function AttendancePage() {
                   >
                     <TableCell className="font-semibold">{(record.user as any)?.name || "Unknown"}</TableCell>
                     <TableCell className="text-muted-foreground">{format(new Date(record.scanned_at), "EEE, MMM d HH:mm")}</TableCell>
-                    <TableCell className="text-muted-foreground">{(record.scanner as any)?.name || "—"}</TableCell>
+                    <TableCell className="text-muted-foreground">{getAdminName(record.scanned_by)}</TableCell>
                   </TableRow>
                 ))
               )}
