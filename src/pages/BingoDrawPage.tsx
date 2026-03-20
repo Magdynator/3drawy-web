@@ -70,9 +70,8 @@ export default function BingoDrawPage() {
                 animate={{ scale: 1, opacity: 1 }}
                 className="mb-6"
               >
-                <div className={`inline-flex items-center justify-center w-32 h-32 rounded-3xl border-4 ${
-                  isDrawing ? 'border-primary/30 bg-primary/5' : 'border-primary gradient-primary shadow-glow'
-                } transition-all duration-300`}>
+                <div className={`inline-flex items-center justify-center w-32 h-32 rounded-3xl border-4 ${isDrawing ? 'border-primary/30 bg-primary/5' : 'border-primary gradient-primary shadow-glow'
+                  } transition-all duration-300`}>
                   <span className={`text-5xl font-extrabold ${isDrawing ? 'gradient-text' : 'text-primary-foreground'}`}>
                     {drawnNumber}
                   </span>
@@ -85,11 +84,13 @@ export default function BingoDrawPage() {
             <motion.div
               initial={{ y: 20, opacity: 0 }}
               animate={{ y: 0, opacity: 1 }}
-              className="mb-6 p-4 rounded-2xl bg-warning/10 border border-warning/20 inline-flex items-center gap-3"
+              className="mb-6 w-full flex justify-center"
             >
-              <Trophy className="h-6 w-6 text-warning" />
-              <span className="text-lg font-bold text-foreground">{winner}</span>
-              <Sparkles className="h-5 w-5 text-warning" />
+              <div className="p-4 rounded-2xl bg-warning/10 border border-warning/20 flex items-center gap-3">
+                <Trophy className="h-6 w-6 text-warning" />
+                <span className="text-lg font-bold text-foreground">{winner}</span>
+                <Sparkles className="h-5 w-5 text-warning" />
+              </div>
             </motion.div>
           )}
 
@@ -112,11 +113,10 @@ export default function BingoDrawPage() {
                 .map((entry) => (
                   <div
                     key={entry.bingo_number}
-                    className={`p-3 rounded-xl border text-center transition-all ${
-                      drawnNumber === entry.bingo_number && !isDrawing
+                    className={`p-3 rounded-xl border text-center transition-all ${drawnNumber === entry.bingo_number && !isDrawing
                         ? 'border-warning bg-warning/10 shadow-md'
                         : 'border-border/50 bg-muted/20 hover:border-primary/30'
-                    }`}
+                      }`}
                   >
                     <span className="text-xl font-extrabold gradient-text">{entry.bingo_number}</span>
                     <p className="text-xs text-muted-foreground mt-1 truncate">{(entry.user as any)?.name}</p>
