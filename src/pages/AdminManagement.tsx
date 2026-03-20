@@ -103,7 +103,7 @@ export default function AdminManagement() {
     const deleteAdmin = useMutation({
         mutationFn: async (authId: string) => {
             // @ts-ignore
-            const { error } = await supabase.rpc("delete_admin_user", {
+            const { error } = await supabase.rpc("remove_dashboard_admin", {
                 target_auth_id: authId
             });
             if (error) throw error;
