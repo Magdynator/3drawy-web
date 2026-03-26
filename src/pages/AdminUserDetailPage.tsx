@@ -1,4 +1,5 @@
 import { useParams, useNavigate } from "react-router-dom";
+import { useRef } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import DashboardLayout from "@/components/DashboardLayout";
@@ -6,7 +7,10 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { format } from "date-fns";
-import { ArrowLeft, CalendarDays, Activity, User, Phone, MapPin, Database, FileText, Barcode } from "lucide-react";
+import { ArrowLeft, CalendarDays, Activity, User, Phone, MapPin, Database, FileText, Barcode as BarcodeIcon, Download, QrCode } from "lucide-react";
+import { QRCodeSVG } from "qrcode.react";
+import ReactBarcode from "react-barcode";
+import { downloadSvgAsPng } from "@/utils/downloadCode";
 import {
     Table,
     TableBody,
@@ -19,6 +23,8 @@ import {
 export default function AdminUserDetailPage() {
     const { userId } = useParams();
     const navigate = useNavigate();
+    const qrRef = useRef<HTMLDivElement>(null);
+    const barcodeRef = useRef<HTMLDivElement>(null);
 
     // Fetch target user details
     const { data: user, isLoading: userLoading } = useQuery({
@@ -133,7 +139,7 @@ export default function AdminUserDetailPage() {
                             {user.name} <span className="text-sm font-normal text-muted-foreground bg-muted/50 px-2 py-0.5 rounded-md">Admin View</span>
                         </h2>
                         <p className="text-sm text-muted-foreground flex items-center gap-1.5 mt-1">
-                            <Barcode className="h-4 w-4" /> {user.barcode}
+                            <BarcodeIcon className="h-4 w-4" /> {user.barcode}
                         </p>
                     </div>
                 </div>
@@ -195,6 +201,52 @@ export default function AdminUserDetailPage() {
                                     </p>
                                 ) : (
                                     <p className="text-sm text-muted-foreground/50 italic text-center py-4">No notes added for this user.</p>
+                                )}
+                            </CardContent>
+                        </Card>
+
+                        {/* Codes Card */}
+                        <Card className="glass-card border-border/50 shadow-md">
+                            <CardHeader className="pb-3">
+                                <CardTitle className="text-lg flex items-center gap-2 text-primary">
+                                    <QrCode className="h-5 w-5" /> Codes
+                                </CardTitle>
+                                <CardDescription>QR code & barcode for this user</CardDescription>
+                            </CardHeader>
+                            <CardContent className="space-y-5">
+                                <div className="text-center">
+                                    <p className="text-xs font-medium text-muted-foreground mb-2">QR Code (Profile Link)</p>
+                                    <div ref={qrRef} className="inline-block bg-card p-3 rounded-xl border border-border/50">
+                                        <QRCodeSVG value={`${window.location.origin}/user/${user.id}`} size={120} />
+                                    </div>
+                                    <div className="mt-2">
+                                        <Button
+                                            variant="outline"
+                                            size="sm"
+                                            className="rounded-xl text-xs gap-1.5"
+                                            onClick={() => downloadSvgAsPng(qrRef.current, `${user.name.replace(/\s+/g, "-").toLowerCase()}-qrcode.png`)}
+                                        >
+                                            <Download className="h-3.5 w-3.5" /> Download QR
+                                        </Button>
+                                    </div>
+                                </div>
+                                {user.barcode && (
+                                    <div className="text-center border-t border-border/30 pt-4">
+                                        <p className="text-xs font-medium text-muted-foreground mb-2">Barcode (Attendance)</p>
+                                        <div ref={barcodeRef} className="inline-block bg-card p-2 rounded-xl border border-border/50 overflow-hidden max-w-full">
+                                            <ReactBarcode value={user.barcode} width={0.7} height={36} fontSize={8} margin={2} />
+                                        </div>
+                                        <div className="mt-2">
+                                            <Button
+                                                variant="outline"
+                                                size="sm"
+                                                className="rounded-xl text-xs gap-1.5"
+                                                onClick={() => downloadSvgAsPng(barcodeRef.current, `${user.name.replace(/\s+/g, "-").toLowerCase()}-barcode.png`)}
+                                            >
+                                                <Download className="h-3.5 w-3.5" /> Download Barcode
+                                            </Button>
+                                        </div>
+                                    </div>
                                 )}
                             </CardContent>
                         </Card>
