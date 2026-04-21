@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
-import { useParams, useSearchParams } from "react-router-dom";
+import { useParams, useSearchParams, useLocation } from "react-router-dom";
 import { motion } from "framer-motion";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -24,9 +24,72 @@ const TYPE_INFO: Record<string, { icon: string; label: string; desc: string; col
     fast_typing: { icon: "⚡", label: "Fast Typing", desc: "Type it fast!", color: "from-lime-500 to-green-500" },
 };
 
+function GetReadyCountdown({ typeInfo, isFirst }: { typeInfo: any, isFirst: boolean }) {
+    const [countdown, setCountdown] = useState(isFirst ? 3 : 0);
+
+    useEffect(() => {
+        if (countdown > 0) {
+            const timer = setTimeout(() => setCountdown(countdown - 1), 1000);
+            return () => clearTimeout(timer);
+        }
+    }, [countdown]);
+
+    return (
+        <div className={`min-h-screen bg-gradient-to-br ${typeInfo.color} text-white flex flex-col items-center justify-center p-6 text-center relative overflow-hidden`}>
+            <div className="absolute inset-0 overflow-hidden pointer-events-none">
+                <div className="absolute -top-32 -right-32 w-80 h-80 bg-white/5 rounded-full blur-3xl" />
+                <div className="absolute -bottom-32 -left-32 w-80 h-80 bg-white/5 rounded-full blur-3xl" />
+            </div>
+
+            <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ type: "spring", stiffness: 200 }} className="relative z-10 text-[100px] mb-4">
+                {typeInfo.icon}
+            </motion.div>
+
+            <motion.h1 initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.15 }} className="relative z-10 text-4xl md:text-5xl font-black mb-2">
+                {typeInfo.label}
+            </motion.h1>
+
+            <motion.p initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.3 }} className="relative z-10 text-xl text-white/60 font-semibold mb-8">
+                {typeInfo.desc}
+            </motion.p>
+
+            <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.5 }}
+                className="relative z-10 flex flex-col items-center"
+            >
+                <motion.div
+                    key={countdown}
+                    initial={{ scale: 0.5, opacity: 0 }}
+                    animate={{ scale: 1.5, opacity: 1 }}
+                    transition={{ duration: 0.5 }}
+                    className="text-7xl md:text-8xl font-black mb-6"
+                >
+                    {countdown > 0 ? countdown : "GO!"}
+                </motion.div>
+
+                <div className="flex gap-2">
+                    {[0, 1, 2].map(i => (
+                        <motion.div
+                            key={i}
+                            animate={{
+                                scale: (3 - countdown) > i ? [1, 1.2, 1] : 1,
+                                opacity: (3 - countdown) > i ? 1 : 0.3
+                            }}
+                            className="w-3 h-3 rounded-full bg-white"
+                        />
+                    ))}
+                </div>
+            </motion.div>
+        </div>
+    );
+}
+
 export default function QuizPlayerGamePage() {
     const { sessionId } = useParams();
     const [searchParams] = useSearchParams();
+    const location = useLocation();
     const playerId = searchParams.get("playerId");
     const [status, setStatus] = useState<"waiting" | "get_ready" | "show_question" | "question" | "answered" | "results" | "leaderboard" | "finished">("waiting");
     const [playerInfo, setPlayerInfo] = useState<{ nickname: string, avatar_url: string } | null>(null);
@@ -63,14 +126,24 @@ export default function QuizPlayerGamePage() {
                 const { data: pData } = await supabase.from("quiz_players").select("nickname, avatar_url").eq("id", playerId).single();
                 if (pData) setPlayerInfo(pData);
 
-                // @ts-ignore
-                const { data: qs } = await supabase
-                    .from("quiz_questions")
-                    .select("*")
-                    .eq("quiz_id", session.quiz_id)
-                    .order("position", { ascending: true });
+                let currentQs = [];
+                // Use pre-fetched questions if available
+                if (location.state?.questions && Array.isArray(location.state.questions)) {
+                    currentQs = location.state.questions;
+                    setQuestions(currentQs);
+                } else {
+                    // @ts-ignore
+                    const { data: qs } = await supabase
+                        .from("quiz_questions")
+                        .select("*")
+                        .eq("quiz_id", session.quiz_id)
+                        .order("position", { ascending: true });
 
-                if (qs) setQuestions(qs);
+                    if (qs) {
+                        currentQs = qs;
+                        setQuestions(currentQs);
+                    }
+                }
                 setCurrentIndex(session.current_question_index);
 
                 if (session.status === "finished") setStatus("finished");
@@ -81,8 +154,8 @@ export default function QuizPlayerGamePage() {
                     setCurrentIndex(session.current_question_index);
                 } else if (session.status === "question") {
                     setStatus("question");
-                    setLocalTimeLeft(qs?.[session.current_question_index]?.time_limit || 20);
-                    initQuestionState(qs?.[session.current_question_index]);
+                    setLocalTimeLeft(currentQs?.[session.current_question_index]?.time_limit || 20);
+                    initQuestionState(currentQs?.[session.current_question_index]);
                 } else if (session.status === "lobby" || session.status === "waiting") {
                     setStatus("waiting");
                 } else {
@@ -138,6 +211,8 @@ export default function QuizPlayerGamePage() {
                         initQuestionState(questions[newIndex]);
                     } else if (newStatus === "lobby" || newStatus === "waiting") {
                         setStatus("waiting");
+                    } else if (newStatus === "get_ready") {
+                        setStatus("get_ready");
                     }
                 }
             )
@@ -340,20 +415,7 @@ export default function QuizPlayerGamePage() {
 
     if (status === "get_ready") {
         return (
-            <div className={`min-h-screen bg-gradient-to-br ${typeInfo.color} text-white flex flex-col items-center justify-center p-6 text-center relative overflow-hidden`}>
-                <div className="absolute inset-0 overflow-hidden pointer-events-none">
-                    <div className="absolute -top-32 -right-32 w-80 h-80 bg-white/5 rounded-full blur-3xl" />
-                    <div className="absolute -bottom-32 -left-32 w-80 h-80 bg-white/5 rounded-full blur-3xl" />
-                </div>
-                <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ type: "spring", stiffness: 200 }} className="relative z-10 text-[100px] mb-4">{typeInfo.icon}</motion.div>
-                <motion.h1 initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.15 }} className="relative z-10 text-4xl md:text-5xl font-black mb-2">{typeInfo.label}</motion.h1>
-                <motion.p initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.3 }} className="relative z-10 text-xl text-white/60 font-semibold mb-8">{typeInfo.desc}</motion.p>
-                <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.5 }} className="relative z-10 flex gap-2">
-                    {[0, 1, 2].map(i => (
-                        <motion.div key={i} initial={{ scale: 0 }} animate={{ scale: [0, 1.2, 1] }} transition={{ delay: 0.6 + i * 0.25 }} className="w-3 h-3 rounded-full bg-white/50" />
-                    ))}
-                </motion.div>
-            </div>
+            <GetReadyCountdown typeInfo={typeInfo} isFirst={currentIndex === 0} />
         );
     }
 

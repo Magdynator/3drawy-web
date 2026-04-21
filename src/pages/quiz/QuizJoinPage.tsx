@@ -154,6 +154,22 @@ export default function QuizJoinPage() {
 
             setStep(3);
 
+            // Pre-fetch questions to avoid first-round delay
+            let preFetchedQuestions: any[] = [];
+            (async () => {
+                // @ts-ignore
+                const { data: session } = await supabase.from("quiz_sessions").select("quiz_id").eq("id", sessionId).single();
+                if (session) {
+                    // @ts-ignore
+                    const { data: qs } = await supabase
+                        .from("quiz_questions")
+                        .select("*")
+                        .eq("quiz_id", (session as any).quiz_id)
+                        .order("position", { ascending: true });
+                    if (qs) preFetchedQuestions = qs;
+                }
+            })();
+
             // Subscribe to session status changes to know when game starts
             const sessionChannel = supabase
                 .channel(`player-wait-${sessionId}`)
@@ -166,9 +182,12 @@ export default function QuizJoinPage() {
                         filter: `id=eq.${sessionId}`,
                     },
                     (payload: any) => {
-                        if (payload.new.status === "question") {
+                        const s = payload.new.status;
+                        if (s === "question" || s === "get_ready" || s === "show_question") {
                             // Game has started! Navigate to player game view
-                            navigate(`/quiz/play/${sessionId}?playerId=${data.id}`);
+                            navigate(`/quiz/play/${sessionId}?playerId=${data.id}`, {
+                                state: { questions: preFetchedQuestions }
+                            });
                         }
                     }
                 )
@@ -277,8 +296,8 @@ export default function QuizJoinPage() {
                                                 type="button"
                                                 onClick={() => setAvatar(a)}
                                                 className={`text-3xl p-2 rounded-xl transition-all aspect-square flex items-center justify-center ${avatar === a
-                                                        ? 'bg-zingoo-purple shadow-lg ring-2 ring-zingoo-purple ring-offset-2 scale-105 z-10'
-                                                        : 'hover:bg-slate-200 hover:scale-105 opacity-70 hover:opacity-100 bg-white/50'
+                                                    ? 'bg-zingoo-purple shadow-lg ring-2 ring-zingoo-purple ring-offset-2 scale-105 z-10'
+                                                    : 'hover:bg-slate-200 hover:scale-105 opacity-70 hover:opacity-100 bg-white/50'
                                                     }`}
                                             >
                                                 {a}

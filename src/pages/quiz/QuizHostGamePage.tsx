@@ -81,12 +81,26 @@ function GetReadyScreen({ questionNum, totalQuestions, qType, onReady }: {
     questionNum: number; totalQuestions: number; qType: string; onReady: () => void;
 }) {
     const info = TYPE_INFO[qType] || TYPE_INFO.quiz;
+    const isFirst = questionNum === 1;
+    const [countdown, setCountdown] = useState(isFirst ? 3 : 0);
 
-    // Auto-advance after 3 seconds
+    // Auto-advance faster if not first question
     useEffect(() => {
-        const timer = setTimeout(onReady, 2000);
-        return () => clearTimeout(timer);
-    }, [onReady]);
+        if (!isFirst) {
+            const timer = setTimeout(onReady, 2000);
+            return () => clearTimeout(timer);
+        }
+    }, [isFirst, onReady]);
+
+    // Countdown logic
+    useEffect(() => {
+        if (countdown > 0) {
+            const timer = setTimeout(() => setCountdown(countdown - 1), 1000);
+            return () => clearTimeout(timer);
+        } else {
+            onReady();
+        }
+    }, [countdown, onReady]);
 
     return (
         <div className={`min-h-screen bg-gradient-to-br ${info.color} flex flex-col items-center justify-center p-6 text-white text-center relative overflow-hidden`}>
@@ -135,23 +149,59 @@ function GetReadyScreen({ questionNum, totalQuestions, qType, onReady }: {
                 {info.desc}
             </motion.p>
 
-            {/* Animated countdown dots */}
-            <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ delay: 0.6 }}
-                className="relative z-10 flex gap-3 mt-12"
-            >
-                {[0, 1, 2].map(i => (
-                    <motion.div
-                        key={i}
-                        initial={{ scale: 0 }}
-                        animate={{ scale: [0, 1.2, 1] }}
-                        transition={{ delay: 0.8 + i * 0.3, duration: 0.4 }}
-                        className="w-4 h-4 rounded-full bg-white/60"
-                    />
-                ))}
-            </motion.div>
+            {/* Animated countdown dots and Big Number */}
+            {isFirst && (
+                <motion.div
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ delay: 0.2 }}
+                    className="relative z-10 flex flex-col items-center mt-12"
+                >
+                    <AnimatePresence mode="wait">
+                        <motion.div
+                            key={countdown}
+                            initial={{ scale: 0.5, opacity: 0 }}
+                            animate={{ scale: 1.5, opacity: 1 }}
+                            exit={{ scale: 2, opacity: 0 }}
+                            transition={{ duration: 0.5 }}
+                            className="text-8xl md:text-9xl font-black mb-8"
+                        >
+                            {countdown > 0 ? countdown : "GO!"}
+                        </motion.div>
+                    </AnimatePresence>
+
+                    <div className="flex gap-3">
+                        {[0, 1, 2].map(i => (
+                            <motion.div
+                                key={i}
+                                animate={{
+                                    scale: (3 - countdown) > i ? [1, 1.2, 1] : 1,
+                                    opacity: (3 - countdown) > i ? 1 : 0.3
+                                }}
+                                className="w-4 h-4 rounded-full bg-white"
+                            />
+                        ))}
+                    </div>
+                </motion.div>
+            )}
+
+            {!isFirst && (
+                <motion.div
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ delay: 0.6 }}
+                    className="relative z-10 flex gap-3 mt-12"
+                >
+                    {[0, 1, 2].map(i => (
+                        <motion.div
+                            key={i}
+                            initial={{ scale: 0 }}
+                            animate={{ scale: [1, 1.2, 1] }}
+                            className="w-4 h-4 rounded-full bg-white/60"
+                        />
+                    ))}
+                </motion.div>
+            )}
         </div>
     );
 }
@@ -369,10 +419,9 @@ export default function QuizHostGamePage() {
                     .select("id, nickname, avatar_url, score")
                     .eq("session_id", sessionId)
                     .order("score", { ascending: false });
-                // @ts-ignore
-                await supabase.from("quiz_players").delete().eq("session_id", sessionId);
-                // @ts-ignore
-                await supabase.from("quiz_sessions").delete().eq("id", sessionId);
+                // Persist session for leaderboard and results
+                // await supabase.from("quiz_players").delete().eq("session_id", sessionId);
+                // await supabase.from("quiz_sessions").delete().eq("id", sessionId);
                 navigate(`/quiz/leaderboard/${sessionId}`, { state: { players: finalPlayers || [] } });
             } else {
                 setGameState("leaderboard");

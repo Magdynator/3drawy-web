@@ -14,6 +14,48 @@ export default function QuizListPage() {
     const { toast } = useToast();
     const { session } = useAuth();
     const queryClient = useQueryClient();
+    const { currentUser } = useAuth();
+
+    useEffect(() => {
+        const cleanupOldSessions = async () => {
+            try {
+                const today = new Date();
+                today.setHours(0, 0, 0, 0);
+                const todayISO = today.toISOString();
+
+                // 1. Fetch old sessions
+                // @ts-ignore
+                const { data: oldSessions } = await supabase
+                    .from("quiz_sessions")
+                    .select("id")
+                    .lt("created_at", todayISO);
+
+                if (oldSessions && oldSessions.length > 0) {
+                    const sessionIds = oldSessions.map((s: any) => s.id);
+
+                    // 2. Delete players for these sessions
+                    // @ts-ignore
+                    await supabase
+                        .from("quiz_players")
+                        .delete()
+                        .in("session_id", sessionIds);
+
+                    // 3. Delete the sessions themselves
+                    // @ts-ignore
+                    await supabase
+                        .from("quiz_sessions")
+                        .delete()
+                        .in("id", sessionIds);
+
+                    console.log(`Cleaned up ${oldSessions.length} old sessions.`);
+                }
+            } catch (err) {
+                console.error("Failed to cleanup old sessions:", err);
+            }
+        };
+
+        cleanupOldSessions();
+    }, []);
 
     // @ts-ignore
     const { data: quizzes, isLoading } = useQuery({

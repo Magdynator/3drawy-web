@@ -123,7 +123,7 @@ export default function QuizHostLobbyPage() {
         // @ts-ignore
         await supabase
             .from("quiz_sessions")
-            .update({ status: "question", current_question_index: 0 })
+            .update({ status: "get_ready", current_question_index: 0 })
             .eq("id", sessionId);
 
         navigate(`/quiz/game/${sessionId}`);
