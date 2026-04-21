@@ -68,6 +68,13 @@ export default {
   				'accent-foreground': 'hsl(var(--sidebar-accent-foreground))',
   				border: 'hsl(var(--sidebar-border))',
   				ring: 'hsl(var(--sidebar-ring))'
+  			},
+  			kahoot: {
+  				purple: 'hsl(var(--kahoot-purple))',
+  				red: 'hsl(var(--kahoot-red))',
+  				blue: 'hsl(var(--kahoot-blue))',
+  				yellow: 'hsl(var(--kahoot-yellow))',
+  				green: 'hsl(var(--kahoot-green))'
   			}
   		},
   		borderRadius: {

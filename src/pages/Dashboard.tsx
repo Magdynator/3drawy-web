@@ -3,7 +3,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import DashboardLayout from "@/components/DashboardLayout";
-import { Users, ClipboardList, ScanLine, Wallet, Calendar as CalendarIcon, Plus, ChevronRight, Dices, Pencil, Trash2, Shield, Activity } from "lucide-react";
+import { Users, ClipboardList, ScanLine, Wallet, Calendar as CalendarIcon, Plus, ChevronRight, Dices, Pencil, Trash2, Shield, Activity, Play } from "lucide-react";
 import { Calendar } from "@/components/ui/calendar";
 import { useState } from "react";
 import { format, isSameDay, startOfWeek, parseISO } from "date-fns";
@@ -166,6 +166,7 @@ export default function Dashboard() {
     { title: "Scanner", value: "Scan", subtitle: "Barcode scanner", icon: ScanLine, onClick: () => navigate("/scanner") },
     { title: "ATM Mode", value: "Points", subtitle: "Manage user points", icon: Wallet, onClick: () => navigate("/atm") },
     { title: "Bingo", value: "Draw", subtitle: "Weekly bingo draw", icon: Dices, onClick: () => navigate("/bingo") },
+    { title: "Zingoo", value: "Zingoo", subtitle: "interactive games", icon: Play, onClick: () => navigate("/quiz/host/list") },
     ...(isSuperAdmin ? [{ title: "Admins", value: "Manage", subtitle: "System admins", icon: Shield, onClick: () => navigate("/admins") }] : []),
   ];
 

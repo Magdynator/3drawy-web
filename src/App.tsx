@@ -19,6 +19,14 @@ import AdminManagement from "./pages/AdminManagement";
 import ProtectedRoute from "./components/ProtectedRoute";
 import ActivityLogsPage from "./pages/ActivityLogsPage";
 import AdminUserDetailPage from "./pages/AdminUserDetailPage";
+import QuizLandingPage from "./pages/quiz/QuizLandingPage";
+import QuizJoinPage from "./pages/quiz/QuizJoinPage";
+import QuizCreatorPage from "./pages/quiz/QuizCreatorPage";
+import QuizHostLobbyPage from "./pages/quiz/QuizHostLobbyPage";
+import QuizHostGamePage from "./pages/quiz/QuizHostGamePage";
+import QuizLeaderboardPage from "./pages/quiz/QuizLeaderboardPage";
+import QuizListPage from "./pages/quiz/QuizListPage";
+import QuizPlayerGamePage from "./pages/quiz/QuizPlayerGamePage";
 
 const queryClient = new QueryClient();
 
@@ -38,6 +46,18 @@ function AnimatedRoutes() {
         <Route path="/admin/logs" element={<ProtectedRoute><ActivityLogsPage /></ProtectedRoute>} />
         <Route path="/admin/user/:userId" element={<ProtectedRoute><AdminUserDetailPage /></ProtectedRoute>} />
         <Route path="/user/:userId" element={<UserProfilePage />} />
+
+        {/* Quiz Routes */}
+        <Route path="/quiz" element={<QuizLandingPage />} />
+        <Route path="/quiz/join" element={<QuizJoinPage />} />
+        <Route path="/quiz/create" element={<ProtectedRoute><QuizCreatorPage /></ProtectedRoute>} />
+        <Route path="/quiz/create/:id" element={<ProtectedRoute><QuizCreatorPage /></ProtectedRoute>} />
+        <Route path="/quiz/host/list" element={<ProtectedRoute><QuizListPage /></ProtectedRoute>} />
+        <Route path="/quiz/host/:sessionId" element={<ProtectedRoute><QuizHostLobbyPage /></ProtectedRoute>} />
+        <Route path="/quiz/game/:sessionId" element={<ProtectedRoute><QuizHostGamePage /></ProtectedRoute>} />
+        <Route path="/quiz/play/:sessionId" element={<QuizPlayerGamePage />} />
+        <Route path="/quiz/leaderboard/:sessionId" element={<QuizLeaderboardPage />} />
+
         <Route path="*" element={<NotFound />} />
       </Routes>
     </AnimatePresence>
