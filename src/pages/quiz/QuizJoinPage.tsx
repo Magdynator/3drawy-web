@@ -270,13 +270,16 @@ export default function QuizJoinPage() {
                             >
                                 <div className="space-y-2">
                                     <h3 className="text-lg font-bold text-slate-600">Choose Character</h3>
-                                    <div className="grid grid-cols-6 gap-2 bg-slate-50 p-3 rounded-2xl h-40 overflow-y-auto">
+                                    <div className="grid grid-cols-5 sm:grid-cols-6 gap-2 bg-slate-50 p-3 rounded-2xl h-44 overflow-y-auto">
                                         {AVAILABLE_AVATARS.map((a) => (
                                             <button
                                                 key={a}
                                                 type="button"
                                                 onClick={() => setAvatar(a)}
-                                                className={`text-3xl p-2 rounded-xl transition-all ${avatar === a ? 'bg-zingoo-purple shadow-md scale-110 ring-2 ring-zingoo-purple ring-offset-2' : 'hover:bg-slate-200 hover:scale-105 opacity-70 hover:opacity-100'}`}
+                                                className={`text-3xl p-2 rounded-xl transition-all aspect-square flex items-center justify-center ${avatar === a
+                                                        ? 'bg-zingoo-purple shadow-lg ring-2 ring-zingoo-purple ring-offset-2 scale-105 z-10'
+                                                        : 'hover:bg-slate-200 hover:scale-105 opacity-70 hover:opacity-100 bg-white/50'
+                                                    }`}
                                             >
                                                 {a}
                                             </button>
@@ -323,10 +326,6 @@ export default function QuizJoinPage() {
                         )}
                     </AnimatePresence>
                 </motion.div>
-
-                <div className="mt-8 text-center text-white/60 font-medium">
-                    Create your own quiz at {window.location.origin}/quiz
-                </div>
             </div>
         </div>
     );
