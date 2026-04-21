@@ -100,6 +100,8 @@ export default function QuizCreatorPage() {
                 setTitle(quiz.title || "");
                 setDescription(quiz.description || "");
 
+
+
                 // @ts-ignore
                 const { data: qs, error: qsError } = await supabase
                     .from("quiz_questions")
@@ -270,7 +272,11 @@ export default function QuizCreatorPage() {
 
                 // Delete old questions explicitly to avoid orphans when replacing them
                 // @ts-ignore
-                await supabase.from("quiz_questions").delete().eq("quiz_id", id);
+                const { error: deleteError } = await supabase.from("quiz_questions").delete().eq("quiz_id", id);
+                if (deleteError) {
+                    console.error("Error deleting old questions:", deleteError);
+                    throw new Error(`Failed to update questions: ${deleteError.message}`);
+                }
             } else {
                 // @ts-ignore
                 const { data: quiz, error: quizError } = await supabase
@@ -303,9 +309,13 @@ export default function QuizCreatorPage() {
                 });
             }
 
+            // 3. Insert new questions
             // @ts-ignore
             const { error: questionsError } = await supabase.from("quiz_questions").insert(questionsToInsert);
-            if (questionsError) throw questionsError;
+            if (questionsError) {
+                console.error("Error inserting questions:", questionsError);
+                throw new Error(`Failed to insert questions: ${questionsError.message}`);
+            }
 
             toast({ title: "Quiz Saved!", description: `"${title}" is ready with ${validQuestions.length} questions.` });
             navigate("/quiz/host/list");

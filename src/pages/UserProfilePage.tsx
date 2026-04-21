@@ -21,6 +21,29 @@ export default function UserProfilePage() {
     enabled: !!userId,
   });
 
+  const getLevel = (startingYear: number | null) => {
+    if (!startingYear) return null;
+    const now = new Date();
+    const year = now.getFullYear();
+    const month = now.getMonth() + 1;
+    let level = year - startingYear;
+    if (month >= 9) level++;
+    if (level < 1) level = 1;
+    return level;
+  };
+
+  const getLevelName = (level: number | null) => {
+    if (level === null) return null;
+    if (level === 1) return "1st Year";
+    if (level === 2) return "2nd Year";
+    if (level === 3) return "3rd Year";
+    if (level === 4) return "4th Year";
+    return "Graduate";
+  };
+
+  const level = getLevel(user?.starting_year);
+  const levelName = getLevelName(level);
+
   const { data: closestEvent } = useQuery({
     queryKey: ["closest-event"],
     queryFn: async () => {
@@ -80,9 +103,16 @@ export default function UserProfilePage() {
           <CardTitle className="text-2xl font-extrabold">
             <span className="gradient-text">{user.name}</span>
           </CardTitle>
-          <Badge variant="outline" className="mx-auto mt-2 rounded-full px-3 border-primary/20 bg-primary/5 text-primary font-medium">
-            {user.role.replace("_", " ")}
-          </Badge>
+          <div className="flex flex-wrap justify-center gap-2 mt-2">
+            <Badge variant="outline" className="rounded-full px-3 border-primary/20 bg-primary/5 text-primary font-medium">
+              {user.role.replace("_", " ")}
+            </Badge>
+            {levelName && (
+              <Badge variant="secondary" className="rounded-full px-3 bg-secondary/50 text-secondary-foreground font-medium">
+                {levelName}
+              </Badge>
+            )}
+          </div>
         </CardHeader>
         <CardContent className="space-y-5">
           <div className="grid grid-cols-2 gap-3 text-sm">

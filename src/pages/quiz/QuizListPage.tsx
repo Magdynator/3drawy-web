@@ -69,6 +69,7 @@ export default function QuizListPage() {
             if (error) throw error;
             return data || [];
         },
+        enabled: !!session?.user?.id,
     });
 
     const startSession = useMutation({

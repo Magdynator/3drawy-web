@@ -7,7 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { format } from "date-fns";
-import { ArrowLeft, CalendarDays, Activity, User, Phone, MapPin, Database, FileText, Barcode as BarcodeIcon, Download, QrCode } from "lucide-react";
+import { ArrowLeft, CalendarDays, Activity, User, Phone, MapPin, Database, FileText, Barcode as BarcodeIcon, Download, QrCode, Users } from "lucide-react";
 import { QRCodeSVG } from "qrcode.react";
 import ReactBarcode from "react-barcode";
 import { downloadSvgAsPng } from "@/utils/downloadCode";
@@ -36,6 +36,29 @@ export default function AdminUserDetailPage() {
         },
         enabled: !!userId,
     });
+
+    const getLevel = (startingYear: number | null) => {
+        if (!startingYear) return null;
+        const now = new Date();
+        const year = now.getFullYear();
+        const month = now.getMonth() + 1;
+        let level = year - startingYear;
+        if (month >= 9) level++;
+        if (level < 1) level = 1;
+        return level;
+    };
+
+    const getLevelName = (level: number | null) => {
+        if (level === null) return null;
+        if (level === 1) return "1st Year";
+        if (level === 2) return "2nd Year";
+        if (level === 3) return "3rd Year";
+        if (level === 4) return "4th Year";
+        return "Graduate";
+    };
+
+    const level = getLevel(user?.starting_year);
+    const levelName = getLevelName(level);
 
     // Fetch admins list to map performing IDs to names
     const { data: admins } = useQuery({
@@ -181,6 +204,15 @@ export default function AdminUserDetailPage() {
                                         <div>
                                             <p className="text-sm font-medium">Birthday</p>
                                             <p className="text-sm text-muted-foreground">{format(new Date(user.birthday), "do MMMM, yyyy")}</p>
+                                        </div>
+                                    </div>
+                                )}
+                                {levelName && (
+                                    <div className="flex items-start gap-3">
+                                        <div className="p-2 bg-primary/10 rounded-lg shrink-0 mt-0.5"><Users className="h-4 w-4 text-primary" /></div>
+                                        <div>
+                                            <p className="text-sm font-medium">Academic Year</p>
+                                            <p className="text-sm text-muted-foreground">{levelName}</p>
                                         </div>
                                     </div>
                                 )}

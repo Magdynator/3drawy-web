@@ -33,6 +33,7 @@ export default function UserManagement() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const [search, setSearch] = useState("");
+  const [filterYear, setFilterYear] = useState<string>("all");
   const [dialogOpen, setDialogOpen] = useState(false);
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
   const [targetUser, setTargetUser] = useState<any>(null);
@@ -40,7 +41,26 @@ export default function UserManagement() {
   const [form, setForm] = useState({
     name: "", phone: "", address: "",
     birthday: "", pin: "", notes: "",
+    academicYear: "",
   });
+
+  const getLevel = (startingYear: number | null) => {
+    if (!startingYear) return null;
+    const now = new Date();
+    const year = now.getFullYear();
+    const month = now.getMonth() + 1;
+    let level = year - startingYear;
+    if (month >= 9) level++;
+    if (level < 1) level = 1;
+    return level;
+  };
+
+  const getStartingYearFromLevel = (level: number) => {
+    const now = new Date();
+    const year = now.getFullYear();
+    const month = now.getMonth() + 1;
+    return month >= 9 ? year - level + 1 : year - level;
+  };
 
   const isSuperAdmin = currentUser?.role === "super_admin";
   const isAdmin = currentUser?.role === "admin" || isSuperAdmin;
@@ -56,6 +76,7 @@ export default function UserManagement() {
 
   const saveUser = useMutation({
     mutationFn: async () => {
+      const starting_year = form.academicYear ? getStartingYearFromLevel(parseInt(form.academicYear)) : null;
       if (editingUser) {
         const { error } = await supabase.from("users").update({
           name: form.name,
@@ -64,6 +85,7 @@ export default function UserManagement() {
           birthday: form.birthday || null,
           pin: form.pin || null,
           notes: form.notes || null,
+          starting_year,
         }).eq("id", editingUser.id);
         if (error) throw error;
 
@@ -84,6 +106,7 @@ export default function UserManagement() {
           pin: form.pin || null,
           notes: form.notes || null,
           barcode,
+          starting_year,
         });
         if (error) throw error;
 
@@ -99,7 +122,7 @@ export default function UserManagement() {
       queryClient.invalidateQueries({ queryKey: ["users-count"] });
       setDialogOpen(false);
       setEditingUser(null);
-      setForm({ name: "", phone: "", address: "", birthday: "", pin: "", notes: "" });
+      setForm({ name: "", phone: "", address: "", birthday: "", pin: "", notes: "", academicYear: "" });
       toast({ title: editingUser ? "User updated successfully" : "User added successfully" });
     },
     onError: (err: Error) => {
@@ -109,15 +132,10 @@ export default function UserManagement() {
 
   const deleteUser = useMutation({
     mutationFn: async (id: string) => {
-      const { error } = await supabase.from("users").delete().eq("id", id);
+      const { error } = await supabase.rpc("delete_user_by_admin", {
+        target_user_id: id,
+      });
       if (error) throw error;
-
-      await logActivity(
-        currentUser?.id,
-        "DELETE_USER",
-        `Deleted user ID: ${id}`,
-        id
-      );
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["users"] });
@@ -133,6 +151,7 @@ export default function UserManagement() {
 
   const openEdit = (user: any) => {
     setEditingUser(user);
+    const level = getLevel(user.starting_year);
     setForm({
       name: user.name,
       phone: user.phone || "",
@@ -140,76 +159,121 @@ export default function UserManagement() {
       birthday: user.birthday || "",
       pin: user.pin || "",
       notes: user.notes || "",
+      academicYear: level ? level.toString() : "",
     });
     setDialogOpen(true);
   };
 
-  const filtered = users?.filter(u =>
-    u.name.toLowerCase().includes(search.toLowerCase()) ||
-    u.phone?.toLowerCase().includes(search.toLowerCase())
-  );
+  const filtered = users?.filter(u => {
+    const matchesSearch = u.name.toLowerCase().includes(search.toLowerCase()) ||
+      u.phone?.toLowerCase().includes(search.toLowerCase());
+
+    if (filterYear === "all") return matchesSearch;
+
+    const level = getLevel(u.starting_year);
+    const matchesYear = filterYear === "5" ? (level && level >= 5) : (level && level.toString() === filterYear);
+
+    return matchesSearch && matchesYear;
+  });
 
   return (
     <DashboardLayout title="User Management">
-      <div className="flex flex-col sm:flex-row gap-3 mb-6 animate-fade-in">
-        <div className="relative flex-1">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-          <Input
-            placeholder="Search users..."
-            value={search}
-            onChange={e => setSearch(e.target.value)}
-            className="pl-9 rounded-xl bg-card/80 border-border/50"
-          />
-        </div>
-        {isAdmin && (
-          <Dialog open={dialogOpen} onOpenChange={(open) => {
-            setDialogOpen(open);
-            if (!open) {
-              setEditingUser(null);
-              setForm({ name: "", phone: "", address: "", birthday: "", pin: "", notes: "" });
-            }
-          }}>
-            <DialogTrigger asChild>
-              <Button className="rounded-xl gradient-primary text-primary-foreground font-semibold shadow-glow hover:shadow-glow-lg hover:scale-[1.02] transition-all">
-                <Plus className="h-4 w-4 mr-2" />Add User
-              </Button>
-            </DialogTrigger>
-            <DialogContent className="max-h-[90vh] overflow-y-auto rounded-2xl">
-              <DialogHeader>
-                <DialogTitle className="text-xl font-bold">{editingUser ? "Edit User" : "Add New User"}</DialogTitle>
-              </DialogHeader>
-              <form onSubmit={e => { e.preventDefault(); saveUser.mutate(); }} className="space-y-4 pt-2">
-                <div className="space-y-2">
-                  <Label>Name *</Label>
-                  <Input value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))} required className="rounded-xl" />
-                </div>
-                <div className="space-y-2">
-                  <Label>Phone</Label>
-                  <Input value={form.phone} onChange={e => setForm(f => ({ ...f, phone: e.target.value }))} className="rounded-xl" />
-                </div>
-                <div className="space-y-2">
-                  <Label>Address</Label>
-                  <Input value={form.address} onChange={e => setForm(f => ({ ...f, address: e.target.value }))} className="rounded-xl" />
-                </div>
-                <div className="space-y-2">
-                  <Label>Birthday</Label>
-                  <Input type="date" value={form.birthday} onChange={e => setForm(f => ({ ...f, birthday: e.target.value }))} className="rounded-xl" />
-                </div>
-                <div className="space-y-2">
-                  <Label>PIN (for ATM mode)</Label>
-                  <Input value={form.pin} onChange={e => setForm(f => ({ ...f, pin: e.target.value }))} maxLength={6} className="rounded-xl" />
-                </div>
-                <div className="space-y-2">
-                  <Label>Notes</Label>
-                  <Textarea value={form.notes} onChange={e => setForm(f => ({ ...f, notes: e.target.value }))} className="rounded-xl" />
-                </div>
-                <Button type="submit" className="w-full rounded-xl gradient-primary text-primary-foreground font-semibold hover:scale-[1.02] transition-transform mt-2" disabled={saveUser.isPending}>
-                  {saveUser.isPending ? "Saving..." : editingUser ? "Save Changes" : "Add User"}
+      <div className="flex flex-col gap-4 mb-6 animate-fade-in">
+        <div className="flex flex-col sm:flex-row gap-3">
+          <div className="relative flex-1">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <Input
+              placeholder="Search users..."
+              value={search}
+              onChange={e => setSearch(e.target.value)}
+              className="pl-9 rounded-xl bg-card/80 border-border/50"
+            />
+          </div>
+          {isAdmin && (
+            <Dialog open={dialogOpen} onOpenChange={(open) => {
+              setDialogOpen(open);
+              if (!open) {
+                setEditingUser(null);
+                setForm({ name: "", phone: "", address: "", birthday: "", pin: "", notes: "", academicYear: "" });
+              }
+            }}>
+              <DialogTrigger asChild>
+                <Button className="rounded-xl gradient-primary text-primary-foreground font-semibold shadow-glow hover:shadow-glow-lg hover:scale-[1.02] transition-all">
+                  <Plus className="h-4 w-4 mr-2" />Add User
                 </Button>
-              </form>
-            </DialogContent>
-          </Dialog>
-        )}
+              </DialogTrigger>
+              <DialogContent className="max-h-[90vh] overflow-y-auto rounded-2xl">
+                <DialogHeader>
+                  <DialogTitle className="text-xl font-bold">{editingUser ? "Edit User" : "Add New User"}</DialogTitle>
+                </DialogHeader>
+                <form onSubmit={e => { e.preventDefault(); saveUser.mutate(); }} className="space-y-4 pt-2">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label>Name *</Label>
+                      <Input value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))} required className="rounded-xl" />
+                    </div>
+                    <div className="space-y-2">
+                      <Label>Academic Year</Label>
+                      <Select value={form.academicYear} onValueChange={val => setForm(f => ({ ...f, academicYear: val }))}>
+                        <SelectTrigger className="rounded-xl">
+                          <SelectValue placeholder="Select Year" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="1">1st Year</SelectItem>
+                          <SelectItem value="2">2nd Year</SelectItem>
+                          <SelectItem value="3">3rd Year</SelectItem>
+                          <SelectItem value="4">4th Year</SelectItem>
+                          <SelectItem value="5">Graduate</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label>Phone</Label>
+                      <Input value={form.phone} onChange={e => setForm(f => ({ ...f, phone: e.target.value }))} className="rounded-xl" />
+                    </div>
+                    <div className="space-y-2">
+                      <Label>Birthday</Label>
+                      <Input type="date" value={form.birthday} onChange={e => setForm(f => ({ ...f, birthday: e.target.value }))} className="rounded-xl" />
+                    </div>
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Address</Label>
+                    <Input value={form.address} onChange={e => setForm(f => ({ ...f, address: e.target.value }))} className="rounded-xl" />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>PIN (for ATM mode)</Label>
+                    <Input value={form.pin} onChange={e => setForm(f => ({ ...f, pin: e.target.value }))} maxLength={6} className="rounded-xl" />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Notes</Label>
+                    <Textarea value={form.notes} onChange={e => setForm(f => ({ ...f, notes: e.target.value }))} className="rounded-xl" />
+                  </div>
+                  <Button type="submit" className="w-full rounded-xl gradient-primary text-primary-foreground font-semibold hover:scale-[1.02] transition-transform mt-2" disabled={saveUser.isPending}>
+                    {saveUser.isPending ? "Saving..." : editingUser ? "Save Changes" : "Add User"}
+                  </Button>
+                </form>
+              </DialogContent>
+            </Dialog>
+          )}
+        </div>
+
+        <div className="flex flex-wrap gap-2">
+          {["all", "1", "2", "3", "4", "5"].map((year) => (
+            <Button
+              key={year}
+              variant={filterYear === year ? "default" : "outline"}
+              size="sm"
+              onClick={() => setFilterYear(year)}
+              className="rounded-full px-4"
+            >
+              {year === "all" ? "All Users" :
+                year === "5" ? "Graduates" :
+                  `${year}${year === "1" ? "st" : year === "2" ? "nd" : year === "3" ? "rd" : "th"} Year`}
+            </Button>
+          ))}
+        </div>
       </div>
 
       {isLoading ? (

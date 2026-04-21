@@ -14,11 +14,41 @@ interface UserCardProps {
 export default function UserCard({ user, onEdit, onDelete }: UserCardProps) {
   const navigate = useNavigate();
 
+  const getLevel = (startingYear: number | null) => {
+    if (!startingYear) return null;
+    const now = new Date();
+    const year = now.getFullYear();
+    const month = now.getMonth() + 1;
+    let level = year - startingYear;
+    if (month >= 9) level++;
+    if (level < 1) level = 1;
+    return level;
+  };
+
+  const getLevelName = (level: number | null) => {
+    if (level === null) return null;
+    if (level === 1) return "1st Year";
+    if (level === 2) return "2nd Year";
+    if (level === 3) return "3rd Year";
+    if (level === 4) return "4th Year";
+    return "Graduate";
+  };
+
+  const level = getLevel(user.starting_year);
+  const levelName = getLevelName(level);
+
   return (
     <div
       className="group dashboard-card relative overflow-hidden cursor-pointer"
       onClick={() => navigate(`/user/${user.id}`)}
     >
+      {/* Subtle indicator for academic year */}
+      {levelName && (
+        <div className="absolute top-0 right-0 px-3 py-1 bg-primary/10 text-primary text-[10px] font-bold uppercase tracking-wider rounded-bl-xl border-l border-b border-primary/20">
+          {levelName}
+        </div>
+      )}
+
       {/* Subtle gradient overlay on hover */}
       <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none rounded-2xl"
         style={{
