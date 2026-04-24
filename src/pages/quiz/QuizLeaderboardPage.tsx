@@ -186,7 +186,7 @@ export default function QuizLeaderboardPage() {
                                 >
                                     {podium[2].avatar_url || "👤"}
                                 </motion.div>
-                                <div className="font-bold text-center mb-4 truncate max-w-full drop-shadow-md text-orange-100 text-sm md:text-xl px-1">{podium[2].nickname}</div>
+                                <div className="font-bold text-center mb-4 truncate max-w-full drop-shadow-md text-orange-100 text-base md:text-xl px-1">{podium[2].nickname}</div>
 
                                 {/* 3rd Glass Pillar */}
                                 <div className="w-[105%] h-[120px] md:h-[160px] bg-white/[0.03] backdrop-blur-3xl rounded-t-xl shadow-[0_0_30px_rgba(234,88,12,0.2)] flex flex-col items-center justify-start pt-3 md:pt-4 border-t border-l border-white/20 relative overflow-hidden ring-1 ring-orange-500/30">
@@ -194,7 +194,7 @@ export default function QuizLeaderboardPage() {
                                     <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-orange-500/40 to-transparent blur-md" />
                                     <div className="absolute inset-0 shadow-[inset_0_4px_20px_rgba(255,255,255,0.15)] rounded-t-xl z-0" />
 
-                                    <span className="text-4xl md:text-6xl font-black text-transparent bg-clip-text bg-gradient-to-b from-orange-100 to-orange-400 drop-shadow-lg relative z-10">3</span>
+                                    <span className="text-3xl md:text-5xl font-black text-transparent bg-clip-text bg-gradient-to-b from-orange-100 to-orange-400 drop-shadow-lg relative z-10">3</span>
                                     <span className="font-black text-orange-200/80 text-xs md:text-sm mt-1 relative z-10">{podium[2].score} pts</span>
                                 </div>
                             </motion.div>
@@ -241,8 +241,8 @@ export default function QuizLeaderboardPage() {
                                         className="absolute inset-0 w-1/2 h-full bg-gradient-to-r from-transparent via-white/50 to-transparent skew-x-12 z-0 mix-blend-overlay"
                                     />
 
-                                    <span className="text-6xl md:text-8xl font-black text-transparent bg-clip-text bg-gradient-to-b from-yellow-100 via-yellow-300 to-yellow-600 drop-shadow-lg z-10 relative">1</span>
-                                    <span className="font-black text-yellow-100 text-sm md:text-lg z-10 relative mt-1 md:mt-2 drop-shadow-md">{podium[0].score} pts</span>
+                                    <span className="text-5xl md:text-7xl font-black text-transparent bg-clip-text bg-gradient-to-b from-yellow-100 via-yellow-300 to-yellow-600 drop-shadow-lg z-10 relative">1</span>
+                                    <span className="font-black text-yellow-100 text-lg md:text-2xl z-10 relative mt-1 md:mt-2 drop-shadow-md">{podium[0].score} pts</span>
                                 </div>
                             </motion.div>
                         )}
@@ -263,7 +263,7 @@ export default function QuizLeaderboardPage() {
                                 >
                                     {podium[1].avatar_url || "👤"}
                                 </motion.div>
-                                <div className="font-bold text-center mb-4 truncate max-w-full drop-shadow-md text-slate-100 text-sm md:text-2xl px-1">{podium[1].nickname}</div>
+                                <div className="font-bold text-center mb-4 truncate max-w-full drop-shadow-md text-slate-100 text-base md:text-2xl px-1">{podium[1].nickname}</div>
 
                                 {/* 2nd Glass Pillar */}
                                 <div className="w-[105%] h-[160px] md:h-[210px] bg-white/[0.04] backdrop-blur-3xl rounded-t-xl shadow-[0_0_40px_rgba(148,163,184,0.3)] flex flex-col items-center justify-start pt-4 border-t border-l border-white/30 relative overflow-hidden ring-1 ring-slate-400/40">
@@ -271,7 +271,7 @@ export default function QuizLeaderboardPage() {
                                     <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-slate-400/40 to-transparent blur-md" />
                                     <div className="absolute inset-0 shadow-[inset_0_4px_25px_rgba(255,255,255,0.2)] rounded-t-xl z-0" />
 
-                                    <span className="text-5xl md:text-7xl font-black text-transparent bg-clip-text bg-gradient-to-b from-slate-100 to-slate-400 drop-shadow-lg relative z-10">2</span>
+                                    <span className="text-4xl md:text-6xl font-black text-transparent bg-clip-text bg-gradient-to-b from-slate-100 to-slate-400 drop-shadow-lg relative z-10">2</span>
                                     <span className="font-black text-slate-200/80 text-xs md:text-sm mt-1 relative z-10">{podium[1].score} pts</span>
                                 </div>
                             </motion.div>

@@ -68,7 +68,7 @@ function CircularTimer({ timeLeft, totalTime }: { timeLeft: number; totalTime: n
                 />
             </svg>
             <div className="absolute inset-0 flex items-center justify-center">
-                <span className={`text-3xl md:text-4xl font-black text-white drop-shadow-lg ${isCritical ? "text-red-300" : ""}`}>
+                <span className={`text-4xl md:text-6xl font-black text-white drop-shadow-lg ${isCritical ? "text-red-300" : ""}`}>
                     {timeLeft}
                 </span>
             </div>
@@ -545,7 +545,7 @@ export default function QuizHostGamePage() {
                             }
                         }
                     }}
-                    className="text-4xl md:text-6xl lg:text-7xl font-black leading-tight max-w-5xl mx-auto drop-shadow-2xl relative z-10 flex flex-wrap justify-center gap-x-4 gap-y-2"
+                    className="text-3xl md:text-6xl lg:text-7xl font-black leading-tight max-w-7xl mx-auto drop-shadow-2xl relative z-10 flex flex-wrap justify-center gap-x-6 gap-y-4"
                     dir="auto"
                 >
                     {currentQ.question_text.split(" ").map((word: string, i: number) => (
@@ -691,42 +691,22 @@ export default function QuizHostGamePage() {
                 </div>
 
                 {/* Question Text */}
-                <div className="p-6 text-center shrink-0">
-                    <h1 className="text-2xl md:text-4xl font-black leading-tight max-w-4xl mx-auto drop-shadow-md" dir="auto">
+                <div className="p-8 text-center shrink-0">
+                    <h1 className="text-4xl md:text-6xl font-black leading-tight max-w-6xl mx-auto drop-shadow-md" dir="auto">
                         {currentQ.question_text}
                     </h1>
                 </div>
 
-                <div className="flex-1 flex flex-col items-center justify-center p-6 gap-6">
-                    {/* Stats */}
-                    <motion.div initial={{ y: -20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} className="flex items-center gap-3 flex-wrap justify-center">
-                        <div className="bg-green-500/20 border border-green-400/30 rounded-2xl px-5 py-2.5 flex items-center gap-2">
-                            <span className="text-2xl">✅</span>
-                            <div>
-                                <div className="text-2xl font-black">{answersCount}</div>
-                                <div className="text-[10px] font-bold uppercase tracking-widest text-white/50">Answered</div>
-                            </div>
-                        </div>
-                        {unansweredCount > 0 && (
-                            <div className="bg-orange-500/20 border border-orange-400/30 rounded-2xl px-5 py-2.5 flex items-center gap-2">
-                                <span className="text-2xl">⏳</span>
-                                <div>
-                                    <div className="text-2xl font-black">{unansweredCount}</div>
-                                    <div className="text-[10px] font-bold uppercase tracking-widest text-white/50">No Answer</div>
-                                </div>
-                            </div>
-                        )}
-                    </motion.div>
-
+                <div className="flex-1 w-full max-w-5xl mx-auto flex flex-col items-center justify-center p-6 gap-6 overflow-hidden">
                     {/* Choice-based bar chart results */}
                     {(qType === "quiz" || qType === "true_false" || qType === "blur_image" || qType === "eliminate") && (
                         <motion.div
                             initial={{ scale: 0.9, opacity: 0 }}
                             animate={{ scale: 1, opacity: 1 }}
                             transition={{ delay: 0.2 }}
-                            className="w-full max-w-3xl bg-white/10 backdrop-blur-md rounded-3xl p-6 md:p-8 border border-white/10"
+                            className="w-full bg-white/10 backdrop-blur-md rounded-3xl p-6 md:p-10 border border-white/10 shadow-2xl"
                         >
-                            <div className="flex items-end gap-3 md:gap-5 justify-center h-[180px] md:h-[220px]">
+                            <div className="flex items-end gap-3 md:gap-5 justify-center h-[250px] md:h-[350px]">
                                 {currentQ.options.map((opt, i) => {
                                     const count = optionCounts[i] || 0;
                                     const maxCount = Math.max(...optionCounts.slice(0, currentQ.options.length), 1);
@@ -737,7 +717,7 @@ export default function QuizHostGamePage() {
                                                 initial={{ scale: 0 }}
                                                 animate={{ scale: 1 }}
                                                 transition={{ delay: 0.3 + i * 0.1, type: "spring" }}
-                                                className="text-2xl font-black"
+                                                className="text-4xl font-black mb-2"
                                             >
                                                 {count}
                                             </motion.div>
@@ -745,11 +725,11 @@ export default function QuizHostGamePage() {
                                                 initial={{ height: 0 }}
                                                 animate={{ height: `${barPercent}%` }}
                                                 transition={{ delay: 0.2 + i * 0.1, duration: 0.6 }}
-                                                className={`${BAR_COLORS[i % BAR_COLORS.length]} w-full rounded-xl shadow-lg ${opt.isCorrect ? 'ring-2 ring-white ring-offset-2 ring-offset-transparent' : 'opacity-40'}`}
+                                                className={`${BAR_COLORS[i % BAR_COLORS.length]} w-full rounded-2xl shadow-lg ${opt.isCorrect ? 'ring-4 ring-white ring-offset-4 ring-offset-transparent' : 'opacity-40'}`}
                                             />
-                                            <div className={`${BAR_COLORS[i % BAR_COLORS.length]} w-full h-10 rounded-xl flex items-center justify-center text-white font-bold gap-2 shadow-md text-sm`}>
-                                                <span className="text-lg">{OPTION_STYLES[i % OPTION_STYLES.length]?.icon}</span>
-                                                {opt.isCorrect && <span>✓</span>}
+                                            <div className={`${BAR_COLORS[i % BAR_COLORS.length]} w-full h-12 md:h-16 rounded-2xl flex items-center justify-center text-white font-bold gap-2 shadow-md text-lg md:text-xl`}>
+                                                <span className="text-2xl md:text-3xl">{OPTION_STYLES[i % OPTION_STYLES.length]?.icon}</span>
+                                                {opt.isCorrect && <span className="text-2xl">✓</span>}
                                             </div>
                                         </div>
                                     );
@@ -758,32 +738,31 @@ export default function QuizHostGamePage() {
                         </motion.div>
                     )}
 
-                    {/* Text answer results */}
                     {(qType === "type_answer" || qType === "fast_typing") && (
-                        <motion.div initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} className="w-full max-w-2xl bg-white/10 backdrop-blur-md rounded-3xl p-8 text-center border border-white/10">
+                        <motion.div initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} className="w-full max-w-3xl bg-white/10 backdrop-blur-md rounded-3xl p-12 text-center border border-white/10 shadow-xl">
                             <p className="text-xs font-bold uppercase tracking-widest text-white/40 mb-3">Correct Answer</p>
-                            <p className="text-4xl md:text-5xl font-black text-green-400">
+                            <p className="text-5xl md:text-7xl font-black text-green-400 drop-shadow-md">
                                 {qType === "type_answer" ? currentQ.extra_config?.correct_answer || "—" : currentQ.extra_config?.target_text || "—"}
                             </p>
                         </motion.div>
                     )}
 
                     {qType === "slider" && (
-                        <motion.div initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} className="w-full max-w-2xl bg-white/10 backdrop-blur-md rounded-3xl p-8 text-center border border-white/10">
+                        <motion.div initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} className="w-full max-w-3xl bg-white/10 backdrop-blur-md rounded-3xl p-12 text-center border border-white/10 shadow-xl">
                             <p className="text-xs font-bold uppercase tracking-widest text-white/40 mb-3">Correct Value</p>
-                            <p className="text-6xl font-black text-green-400">{currentQ.extra_config?.slider_correct ?? "—"}</p>
-                            <p className="text-white/40 mt-2 text-sm">Range: {currentQ.extra_config?.slider_min ?? 0} — {currentQ.extra_config?.slider_max ?? 100}</p>
+                            <p className="text-7xl md:text-8xl font-black text-green-400 drop-shadow-md">{currentQ.extra_config?.slider_correct ?? "—"}</p>
+                            <p className="text-xl text-white/40 mt-4 font-bold">Range: {currentQ.extra_config?.slider_min ?? 0} — {currentQ.extra_config?.slider_max ?? 100}</p>
                         </motion.div>
                     )}
 
                     {qType === "puzzle" && (
-                        <motion.div initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} className="w-full max-w-xl bg-white/10 backdrop-blur-md rounded-3xl p-6 border border-white/10">
-                            <p className="text-xs font-bold uppercase tracking-widest text-white/40 mb-4 text-center">Correct Order</p>
-                            <div className="flex flex-col gap-2">
+                        <motion.div initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} className="w-full max-w-2xl bg-white/10 backdrop-blur-md rounded-3xl p-10 border border-white/10 shadow-xl">
+                            <p className="text-xs font-bold uppercase tracking-widest text-white/40 mb-6 text-center">Correct Order</p>
+                            <div className="flex flex-col gap-4">
                                 {(currentQ.extra_config?.puzzle_items || []).map((item: string, i: number) => (
-                                    <div key={i} className="flex items-center gap-3 bg-green-500/10 border border-green-400/20 rounded-xl p-3">
-                                        <span className="w-7 h-7 bg-green-500 text-white rounded-full flex items-center justify-center font-black text-xs">{i + 1}</span>
-                                        <span className="font-bold">{item}</span>
+                                    <div key={i} className="flex items-center gap-5 bg-green-500/10 border border-green-400/20 rounded-2xl p-5">
+                                        <span className="w-10 h-10 bg-green-500 text-white rounded-full flex items-center justify-center font-black text-xl">{i + 1}</span>
+                                        <span className="font-black text-2xl">{item}</span>
                                     </div>
                                 ))}
                             </div>
@@ -791,11 +770,11 @@ export default function QuizHostGamePage() {
                     )}
 
                     {(qType === "word_cloud" || qType === "brainstorm" || qType === "poll") && textEntries.length > 0 && (
-                        <motion.div initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} className="w-full max-w-3xl bg-white/10 backdrop-blur-md rounded-3xl p-6 border border-white/10">
-                            <p className="text-xs font-bold uppercase tracking-widest text-white/40 mb-4 text-center">Responses ({textEntries.length})</p>
-                            <div className="flex flex-wrap gap-2 justify-center">
+                        <motion.div initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} className="w-full max-w-5xl bg-white/10 backdrop-blur-md rounded-3xl p-10 border border-white/10 shadow-xl">
+                            <p className="text-xs font-bold uppercase tracking-widest text-white/40 mb-6 text-center">Responses ({textEntries.length})</p>
+                            <div className="flex flex-wrap gap-4 justify-center">
                                 {textEntries.map((entry, i) => (
-                                    <span key={i} className="bg-white/10 px-4 py-2 rounded-xl font-bold text-lg border border-white/10">
+                                    <span key={i} className="bg-white/10 px-6 py-3 rounded-2xl font-black text-2xl border border-white/10 shadow-sm">
                                         {entry}
                                     </span>
                                 ))}
@@ -807,9 +786,9 @@ export default function QuizHostGamePage() {
                     <motion.div initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.5 }}>
                         <Button
                             onClick={handleNext}
-                            className="h-14 px-12 rounded-2xl bg-white text-[#46178f] text-xl font-black hover:bg-white/90 hover:scale-105 shadow-2xl transition-all"
+                            className="h-16 px-16 rounded-3xl bg-white text-[#46178f] text-2xl font-black hover:bg-white/90 hover:scale-105 shadow-[0_20px_50px_rgba(0,0,0,0.3)] transition-all uppercase tracking-wider"
                         >
-                            Next →
+                            Next Question →
                         </Button>
                     </motion.div>
                 </div>
@@ -826,7 +805,7 @@ export default function QuizHostGamePage() {
                                 className={`${OPTION_STYLES[i % OPTION_STYLES.length]?.color} rounded-2xl p-3 md:p-4 flex items-center gap-3 text-white shadow-lg relative overflow-hidden`}
                             >
                                 <div className="text-xl md:text-3xl font-black opacity-40">{OPTION_STYLES[i % OPTION_STYLES.length]?.icon}</div>
-                                <span className="text-base md:text-xl font-bold leading-tight flex-1">{opt.text}</span>
+                                <span className="text-xl md:text-3xl font-black leading-tight flex-1">{opt.text}</span>
                                 {opt.isCorrect && (
                                     <div className="bg-white text-green-500 rounded-full p-1.5 shadow-lg z-20">
                                         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round">
@@ -834,7 +813,7 @@ export default function QuizHostGamePage() {
                                         </svg>
                                     </div>
                                 )}
-                                <span className="bg-white/20 backdrop-blur-sm rounded-full px-3 py-0.5 text-lg font-black z-20">
+                                <span className="bg-white/20 backdrop-blur-sm rounded-full px-5 py-1 text-2xl font-black z-20">
                                     {optionCounts[i] || 0}
                                 </span>
                                 {!opt.isCorrect && <div className="absolute inset-0 bg-black/40 z-10" />}
@@ -855,6 +834,28 @@ export default function QuizHostGamePage() {
                 <div className="absolute bottom-1/4 -left-32 w-80 h-80 bg-white/5 rounded-full blur-3xl" />
             </div>
 
+            {/* Waiting Counter (Floating on the left) */}
+            <AnimatePresence>
+                {(playerCount - answersCount) > 0 && (
+                    <motion.div
+                        initial={{ x: -200, opacity: 0 }}
+                        animate={{ x: 0, opacity: 1 }}
+                        exit={{ x: -200, opacity: 0 }}
+                        className="fixed left-8 top-1/2 -translate-y-1/2 z-50 flex flex-col items-center"
+                    >
+                        <div className="bg-white/10 backdrop-blur-xl border border-white/20 rounded-[30px] p-5 flex flex-col items-center gap-2.5 shadow-2xl min-w-[160px]">
+                            <div className="w-12 h-12 bg-white text-zingoo-purple rounded-full flex items-center justify-center font-black text-xl shadow-lg animate-pulse">
+                                {playerCount - answersCount}
+                            </div>
+                            <div className="text-center">
+                                <div className="text-white font-black text-base uppercase tracking-tighter">Waiting for</div>
+                                <div className="text-white/60 font-bold text-[10px] uppercase tracking-widest mt-0.5">Players...</div>
+                            </div>
+                        </div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
+
             {/* Top bar */}
             <div className="relative z-10 bg-black/20 backdrop-blur-md p-3 px-5 flex items-center justify-between border-b border-white/10">
                 <div className="flex items-center gap-3">
@@ -863,8 +864,8 @@ export default function QuizHostGamePage() {
                         <span>{typeInfo.icon}</span> {typeInfo.label}
                     </span>
                 </div>
-                <div className="flex items-center gap-2">
-                    <span className="text-sm font-bold text-white/60">
+                <div className="flex items-center gap-4">
+                    <span className="text-2xl font-black text-white bg-white/20 px-4 py-1 rounded-xl">
                         {answersCount}/{playerCount}
                     </span>
                     <div className="w-20 h-2 bg-white/10 rounded-full overflow-hidden">
@@ -877,8 +878,8 @@ export default function QuizHostGamePage() {
             </div>
 
             {/* Question Text */}
-            <div className="relative z-10 p-6 md:p-8 text-center shrink-0">
-                <h1 className="text-2xl md:text-5xl font-black leading-tight max-w-5xl mx-auto drop-shadow-lg" dir="auto">
+            <div className="relative z-10 p-8 md:p-12 text-center shrink-0">
+                <h1 className="text-2xl md:text-5xl font-black leading-tight max-w-7xl mx-auto drop-shadow-lg" dir="auto">
                     {currentQ.question_text}
                 </h1>
             </div>
@@ -956,20 +957,20 @@ export default function QuizHostGamePage() {
                             transition={{ delay: i * 0.08 }}
                             className={`${OPTION_STYLES[i % OPTION_STYLES.length]?.color} rounded-2xl p-3 md:p-4 flex items-center gap-3 text-white shadow-lg`}
                         >
-                            <div className="text-xl md:text-3xl font-black opacity-40">{OPTION_STYLES[i % OPTION_STYLES.length]?.icon}</div>
-                            <span className="text-base md:text-xl font-bold leading-tight flex-1">{opt.text}</span>
+                            <div className="text-xl md:text-4xl font-black opacity-40">{OPTION_STYLES[i % OPTION_STYLES.length]?.icon}</div>
+                            <span className="text-2xl md:text-5xl font-black leading-tight flex-1">{opt.text}</span>
                         </motion.div>
                     ))}
                 </div>
             )}
 
             {qType === "true_false" && (
-                <div className="relative z-10 p-4 grid grid-cols-2 gap-4 shrink-0">
-                    <div className="quiz-button-blue rounded-2xl p-6 md:p-8 flex items-center justify-center text-white shadow-lg">
-                        <span className="text-3xl md:text-5xl font-black">TRUE</span>
+                <div className="relative z-10 p-4 grid grid-cols-2 gap-6 shrink-0 flex-1">
+                    <div className="quiz-button-blue rounded-3xl p-6 md:p-10 flex items-center justify-center text-white shadow-xl">
+                        <span className="text-4xl md:text-7xl font-black">TRUE</span>
                     </div>
-                    <div className="quiz-button-red rounded-2xl p-6 md:p-8 flex items-center justify-center text-white shadow-lg">
-                        <span className="text-3xl md:text-5xl font-black">FALSE</span>
+                    <div className="quiz-button-red rounded-3xl p-6 md:p-10 flex items-center justify-center text-white shadow-xl">
+                        <span className="text-4xl md:text-7xl font-black">FALSE</span>
                     </div>
                 </div>
             )}
@@ -984,8 +985,8 @@ export default function QuizHostGamePage() {
                             transition={{ delay: i * 0.08 }}
                             className={`${OPTION_STYLES[i % OPTION_STYLES.length]?.color} rounded-2xl p-3 md:p-4 flex items-center gap-3 text-white shadow-lg`}
                         >
-                            <div className="text-xl md:text-3xl font-black opacity-40">{OPTION_STYLES[i % OPTION_STYLES.length]?.icon}</div>
-                            <span className="text-base md:text-xl font-bold leading-tight flex-1">{opt.text}</span>
+                            <div className="text-xl md:text-4xl font-black opacity-40">{OPTION_STYLES[i % OPTION_STYLES.length]?.icon}</div>
+                            <span className="text-2xl md:text-5xl font-black leading-tight flex-1">{opt.text}</span>
                         </motion.div>
                     ))}
                 </div>

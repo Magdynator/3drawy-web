@@ -141,11 +141,11 @@ export default function QuizHostLobbyPage() {
             {/* Top Bar */}
             <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-12">
                 <div className="flex items-center gap-4">
-                    <div className="bg-white/10 p-3 rounded-2xl backdrop-blur-md border border-white/20">
-                        <span className="text-sm font-bold uppercase tracking-widest text-purple-200 block mb-1">
+                    <div className="bg-white/10 p-4 rounded-3xl backdrop-blur-md border border-white/20">
+                        <span className="text-lg font-bold uppercase tracking-widest text-purple-200 block mb-1">
                             Game PIN:
                         </span>
-                        <span className="text-4xl font-black tracking-tighter tabular-nums">{pin}</span>
+                        <span className="text-6xl font-black tracking-tighter tabular-nums">{pin}</span>
                     </div>
                     <Button
                         variant="ghost"
@@ -203,13 +203,13 @@ export default function QuizHostLobbyPage() {
                             className="text-center"
                         >
                             <div className="w-24 h-24 bg-white/10 rounded-full flex items-center justify-center mx-auto mb-6 animate-pulse">
-                                <Users className="w-12 h-12 text-white/50" />
+                                <Users className="w-16 h-16 text-white/50" />
                             </div>
-                            <h2 className="text-3xl font-bold mb-2">Waiting for players...</h2>
-                            <p className="text-purple-200 text-lg">
+                            <h2 className="text-3xl md:text-4xl font-black mb-3">Waiting for players...</h2>
+                            <p className="text-purple-200 text-2xl font-medium">
                                 Share the Game PIN above or click the share button
                             </p>
-                            <p className="text-purple-300 text-lg mt-4">
+                            <p className="text-purple-300 text-2xl mt-6">
                                 Players can join at{" "}
                                 <span className="font-bold underline">
                                     {window.location.origin}/quiz/join
@@ -234,10 +234,10 @@ export default function QuizHostLobbyPage() {
                                         >
                                             <X className="w-5 h-5" />
                                         </button>
-                                        <div className="text-6xl mb-3 drop-shadow-md group-hover:animate-bounce">
+                                        <div className="text-8xl mb-4 drop-shadow-md group-hover:animate-bounce">
                                             {p.avatar_url || "👤"}
                                         </div>
-                                        <span className="text-2xl font-black drop-shadow-sm truncate w-full">{p.nickname}</span>
+                                        <span className="text-xl md:text-2xl font-black drop-shadow-sm truncate w-full">{p.nickname}</span>
                                     </motion.div>
                                 ))}
                             </div>
@@ -246,7 +246,7 @@ export default function QuizHostLobbyPage() {
                 </AnimatePresence>
 
                 {/* Player count */}
-                <div className="absolute bottom-4 left-6 text-2xl font-black flex items-center gap-3">
+                <div className="absolute bottom-8 left-10 text-2xl md:text-3xl font-black flex items-center gap-3 bg-white/10 backdrop-blur-md px-5 py-2.5 rounded-2xl border border-white/10 shadow-xl">
                     <Users className="w-8 h-8" />
                     <span>{players.length}</span>
                 </div>
