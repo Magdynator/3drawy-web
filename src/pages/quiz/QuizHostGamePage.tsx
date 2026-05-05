@@ -224,6 +224,54 @@ export default function QuizHostGamePage() {
     const [unansweredCount, setUnansweredCount] = useState(0);
     const [blurLevel, setBlurLevel] = useState(30);
     const [textEntries, setTextEntries] = useState<string[]>([]);
+    const [sliderRevealValue, setSliderRevealValue] = useState<number | null>(null);
+    const [sliderRevealDone, setSliderRevealDone] = useState(false);
+
+    // Slider suspense animation — damped oscillation around the correct value
+    useEffect(() => {
+        if (gameState !== "results") {
+            setSliderRevealValue(null);
+            setSliderRevealDone(false);
+            return;
+        }
+        const q = questions[currentIndex];
+        if (!q || q.question_type !== "slider") return;
+
+        const cfg = q.extra_config || {};
+        const correct = cfg.slider_correct ?? 50;
+        const min = cfg.slider_min ?? 0;
+        const max = cfg.slider_max ?? 100;
+        const range = max - min;
+        const startAmplitude = range * 0.4; // start 40% of range away
+        const totalDuration = 4000; // 4 seconds total
+        const frameMs = 30;
+        const totalFrames = Math.ceil(totalDuration / frameMs);
+        let frame = 0;
+
+        // Start from a value below the correct one
+        setSliderRevealValue(Math.max(min, correct - Math.round(startAmplitude)));
+        setSliderRevealDone(false);
+
+        const interval = setInterval(() => {
+            frame++;
+            const progress = frame / totalFrames; // 0 to 1
+            // Damped sine wave: amplitude decreases over time
+            const decay = Math.exp(-3.5 * progress);
+            const oscillation = Math.sin(progress * Math.PI * 8) * startAmplitude * decay;
+            let value = Math.round(correct + oscillation);
+            // Clamp to range
+            value = Math.max(min, Math.min(max, value));
+            setSliderRevealValue(value);
+
+            if (frame >= totalFrames) {
+                clearInterval(interval);
+                setSliderRevealValue(correct);
+                setSliderRevealDone(true);
+            }
+        }, frameMs);
+
+        return () => clearInterval(interval);
+    }, [gameState, currentIndex, questions]);
 
     // Fetch session and questions
     useEffect(() => {
@@ -515,8 +563,8 @@ export default function QuizHostGamePage() {
                     </div>
                 </motion.div>
 
-                {/* Question image */}
-                {currentQ.image_url && (
+                {/* Question image — hide for blur_image type since it reveals during gameplay */}
+                {currentQ.image_url && qType !== "blur_image" && (
                     <motion.div
                         initial={{ opacity: 0, scale: 0.8, rotateX: 20 }}
                         animate={{ opacity: 1, scale: 1, rotateX: 0 }}
@@ -747,13 +795,49 @@ export default function QuizHostGamePage() {
                         </motion.div>
                     )}
 
-                    {qType === "slider" && (
-                        <motion.div initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} className="w-full max-w-3xl bg-white/10 backdrop-blur-md rounded-3xl p-12 text-center border border-white/10 shadow-xl">
-                            <p className="text-xs font-bold uppercase tracking-widest text-white/40 mb-3">Correct Value</p>
-                            <p className="text-7xl md:text-8xl font-black text-green-400 drop-shadow-md">{currentQ.extra_config?.slider_correct ?? "—"}</p>
-                            <p className="text-xl text-white/40 mt-4 font-bold">Range: {currentQ.extra_config?.slider_min ?? 0} — {currentQ.extra_config?.slider_max ?? 100}</p>
-                        </motion.div>
-                    )}
+                    {qType === "slider" && (() => {
+                        const cfg = currentQ.extra_config || {};
+                        const min = cfg.slider_min ?? 0;
+                        const max = cfg.slider_max ?? 100;
+                        const displayVal = sliderRevealValue ?? min;
+                        const percentage = max > min ? ((displayVal - min) / (max - min)) * 100 : 0;
+
+                        return (
+                            <motion.div initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} className="w-full max-w-3xl bg-white/10 backdrop-blur-md rounded-3xl p-10 md:p-12 text-center border border-white/10 shadow-xl">
+                                <p className="text-xs font-bold uppercase tracking-widest text-white/40 mb-6">{sliderRevealDone ? "Correct Value" : "Revealing..."}</p>
+
+                                {/* Large number display */}
+                                <div className={`text-7xl md:text-8xl font-black drop-shadow-md mb-8 transition-colors duration-300 ${sliderRevealDone ? "text-green-400" : "text-yellow-300"}`}>
+                                    {displayVal}
+                                </div>
+
+                                {/* Visual slider track */}
+                                <div className="w-full px-4 mb-6">
+                                    <div className="relative w-full h-5 bg-white/10 rounded-full overflow-visible">
+                                        {/* Filled track */}
+                                        <div
+                                            className={`absolute top-0 left-0 h-full rounded-full transition-colors duration-300 ${sliderRevealDone ? "bg-green-400" : "bg-yellow-400"}`}
+                                            style={{ width: `${percentage}%` }}
+                                        />
+                                        {/* Sliding thumb */}
+                                        <div
+                                            className={`absolute top-1/2 -translate-y-1/2 w-10 h-10 rounded-full border-4 shadow-lg transition-colors duration-300 ${sliderRevealDone ? "bg-green-400 border-green-200 shadow-green-400/50" : "bg-yellow-400 border-yellow-200 shadow-yellow-400/50"}`}
+                                            style={{ left: `calc(${percentage}% - 20px)` }}
+                                        />
+                                    </div>
+                                    {/* Min/Max labels */}
+                                    <div className="flex justify-between text-white/50 font-bold mt-3 text-lg">
+                                        <span>{min}</span>
+                                        <span>{max}</span>
+                                    </div>
+                                </div>
+
+                                {sliderRevealDone && (
+                                    <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="mt-2 text-green-300 text-lg font-bold">✅ Final Answer!</motion.div>
+                                )}
+                            </motion.div>
+                        );
+                    })()}
 
                     {qType === "puzzle" && (
                         <motion.div initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} className="w-full max-w-2xl bg-white/10 backdrop-blur-md rounded-3xl p-10 border border-white/10 shadow-xl">

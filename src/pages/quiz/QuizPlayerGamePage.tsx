@@ -225,7 +225,15 @@ export default function QuizPlayerGamePage() {
         if (!q) return;
         if (q.question_type === "slider") {
             const cfg = q.extra_config || {};
-            setSliderValue(Math.round(((cfg.slider_min ?? 0) + (cfg.slider_max ?? 100)) / 2));
+            const min = cfg.slider_min ?? 0;
+            const max = cfg.slider_max ?? 100;
+            const correct = cfg.slider_correct ?? Math.round((min + max) / 2);
+            // Start at a random value that isn't the correct answer
+            let randomStart = min + Math.floor(Math.random() * (max - min + 1));
+            if (randomStart === correct && max > min) {
+                randomStart = randomStart === max ? randomStart - 1 : randomStart + 1;
+            }
+            setSliderValue(randomStart);
         }
         if (q.question_type === "puzzle") {
             const items = [...(q.extra_config?.puzzle_items || [])];
@@ -740,26 +748,33 @@ export default function QuizPlayerGamePage() {
             return (
                 <div className="min-h-screen zingoo-purple-gradient flex flex-col items-center p-4 gap-4 overflow-y-auto">
                     <div className="text-5xl mt-4">🧩</div>
-                    <h2 className="text-white text-xl font-black text-center">Drag to reorder</h2>
+                    <h2 className="text-white text-xl font-black text-center">Tap arrows to reorder</h2>
                     <div className="w-full max-w-md flex flex-col gap-2">
                         {puzzleOrder.map((item, idx) => (
                             <motion.div
                                 key={item}
                                 layout
-                                draggable
-                                onDragStart={() => setDraggedItem(idx)}
-                                onDragOver={(e: any) => e.preventDefault()}
-                                onDrop={() => {
-                                    if (draggedItem !== null && draggedItem !== idx) {
-                                        movePuzzleItem(draggedItem, idx);
-                                    }
-                                    setDraggedItem(null);
-                                }}
-                                className={`flex items-center gap-3 bg-white/15 backdrop-blur-sm border-2 ${draggedItem === idx ? "border-zingoo-green scale-105" : "border-white/20"} rounded-xl p-4 cursor-grab active:cursor-grabbing transition-all`}
+                                transition={{ type: "spring", stiffness: 400, damping: 30 }}
+                                className="flex items-center gap-3 bg-white/15 backdrop-blur-sm border-2 border-white/20 rounded-xl p-4"
                             >
-                                <div className="w-8 h-8 bg-white/20 rounded-lg flex items-center justify-center text-white font-black text-sm">{idx + 1}</div>
-                                <span className="text-white text-lg font-bold flex-1">{item}</span>
-                                <div className="text-white/40">≡</div>
+                                <div className="w-8 h-8 bg-white/20 rounded-lg flex items-center justify-center text-white font-black text-sm shrink-0">{idx + 1}</div>
+                                <span className="text-white text-lg font-bold flex-1" dir="auto">{item}</span>
+                                <div className="flex flex-col gap-1 shrink-0">
+                                    <button
+                                        onClick={() => idx > 0 && movePuzzleItem(idx, idx - 1)}
+                                        disabled={idx === 0}
+                                        className={`w-8 h-8 rounded-lg flex items-center justify-center text-white font-black text-sm transition-all ${idx === 0 ? "bg-white/5 opacity-30" : "bg-white/20 active:bg-white/40 active:scale-90"}`}
+                                    >
+                                        ▲
+                                    </button>
+                                    <button
+                                        onClick={() => idx < puzzleOrder.length - 1 && movePuzzleItem(idx, idx + 1)}
+                                        disabled={idx === puzzleOrder.length - 1}
+                                        className={`w-8 h-8 rounded-lg flex items-center justify-center text-white font-black text-sm transition-all ${idx === puzzleOrder.length - 1 ? "bg-white/5 opacity-30" : "bg-white/20 active:bg-white/40 active:scale-90"}`}
+                                    >
+                                        ▼
+                                    </button>
+                                </div>
                             </motion.div>
                         ))}
                     </div>
